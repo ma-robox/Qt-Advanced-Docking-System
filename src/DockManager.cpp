@@ -175,7 +175,9 @@ struct DockManagerPrivate
 DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 	_this(_public)
 {
-
+	ContainerOverlay = Q_NULLPTR;
+	DockAreaOverlay = Q_NULLPTR;
+	ViewMenu = Q_NULLPTR;
 }
 
 
@@ -183,6 +185,7 @@ DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 void DockManagerPrivate::loadStylesheet()
 {
 	initResource();
+#if 0
 	QString Result;
 	QString FileName = ":ads/stylesheets/";
 	FileName += CDockManager::testConfigFlag(CDockManager::FocusHighlighting)
@@ -197,6 +200,7 @@ void DockManagerPrivate::loadStylesheet()
 	Result = StyleSheetStream.readAll();
 	StyleSheetFile.close();
 	_this->setStyleSheet(Result);
+#endif	// 0
 }
 
 
@@ -1025,6 +1029,10 @@ CDockAreaWidget* CDockManager::setCentralWidget(CDockWidget* widget)
 	d->CentralWidget = widget;
 	CDockAreaWidget* CentralArea = addDockWidget(CenterDockWidgetArea, widget);
 	CentralArea->setDockAreaFlag(CDockAreaWidget::eDockAreaFlag::HideSingleWidgetTitleBar, true);
+
+#if 1	// [ALB]
+	CentralArea->setCentralDockWidget(widget);
+#endif	// 1
 	return CentralArea;
 }
 
@@ -1233,6 +1241,157 @@ CDockFocusController* CDockManager::dockFocusController() const
 	return d->FocusController;
 }
 
+#if 1	// [ALB]
+//============================================================================
+void CDockManager::updateDockWidgetName(CDockWidget* Dockwidget)
+{
+	if (!d->DockWidgetsMap.values().contains(Dockwidget))
+		return;
+	d->DockWidgetsMap.remove(d->DockWidgetsMap.key(Dockwidget));
+	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
+}
+
+//===========================================================================
+CDockAreaWidget *CDockManager::nextOpenedDockArea(CDockAreaWidget *start, bool cycle)
+{
+	auto list = start->dockContainer()->openedDockAreas();
+	int ix = list.indexOf(start);
+
+	// Verifica se elemento presente nella lista
+	if (ix == -1 || list.size() == 1)
+		return Q_NULLPTR;
+
+	// Cerca elemento successivo nell'ordine
+	else if ((ix + 1) < list.size())
+		return list.at(ix + 1);
+
+	// Se all'estremo della lista verifica ricerca ciclica
+	else if (cycle)
+		return list.first();
+
+	// Elemento valido non trovato
+	else
+		return Q_NULLPTR;
+}
+
+//===========================================================================
+CDockAreaWidget *CDockManager::previousOpenedDockArea(CDockAreaWidget *start, bool cycle)
+{
+	auto list = start->dockContainer()->openedDockAreas();
+	int ix = list.indexOf(start);
+
+	// Verifica se elemento presente nella lista
+	if (ix == -1 || list.size() == 1)
+		return Q_NULLPTR;
+
+	// Cerca elemento precedente nell'ordine
+	else if ((ix - 1) >= 0)
+		return list.at(ix - 1);
+
+	// Se all'estremo della lista verifica ricerca ciclica
+	else if (cycle)
+		return list.last();
+
+	// Elemento valido non trovato
+	else
+		return Q_NULLPTR;
+}
+
+//===========================================================================
+CDockContainerWidget *CDockManager::nextOpenedDockContainer(CDockContainerWidget *start, bool cycle)
+{
+	auto list = openedDockContainers();
+	int ix = list.indexOf(start);
+
+	// Verifica se elemento presente nella lista
+	if (ix == -1 || list.size() == 1)
+		return Q_NULLPTR;
+
+	// Cerca elemento successivo nell'ordine
+	else if ((ix + 1) < list.size())
+		return list.at(ix + 1);
+
+	// Se all'estremo della lista verifica ricerca ciclica
+	else if (cycle)
+		return list.first();
+
+	// Elemento valido non trovato
+	else
+		return Q_NULLPTR;
+}
+
+//===========================================================================
+CDockContainerWidget *CDockManager::previousOpenedDockContainer(CDockContainerWidget *start, bool cycle)
+{
+	auto list = openedDockContainers();
+	int ix = list.indexOf(start);
+
+	// Verifica se elemento presente nella lista
+	if (ix == -1 || list.size() == 1)
+		return Q_NULLPTR;
+
+	// Cerca elemento precedente nell'ordine
+	else if ((ix - 1) >= 0)
+		return list.at(ix - 1);
+
+	// Se all'estremo della lista verifica ricerca ciclica
+	else if (cycle)
+		return list.last();
+
+	// Elemento valido non trovato
+	else
+		return Q_NULLPTR;
+}
+
+//===========================================================================
+void CDockManager::tabRestyleRequest(CDockWidgetTab *tab)
+{
+	Q_UNUSED(tab);
+}
+
+//===========================================================================
+void CDockManager::loadCustomStylesheet(QHash<QString, QString> tagColorDict)
+{
+	initResource();
+	QString Result;
+	QString FileName = ":ads/stylesheets/";
+	FileName += CDockManager::testConfigFlag(CDockManager::FocusHighlighting)
+		? "focus_highlighting" : "default";
+#ifdef Q_OS_LINUX
+    FileName += "_linux";
+#endif
+    FileName += ".css";
+	QFile StyleSheetFile(FileName);
+	StyleSheetFile.open(QIODevice::ReadOnly);
+	QTextStream StyleSheetStream(&StyleSheetFile);
+	Result = StyleSheetStream.readAll();
+	StyleSheetFile.close();
+
+	// Replace delle keyword con la palette corrente
+	QHashIterator<QString, QString>it(tagColorDict);
+	while (it.hasNext())
+	{
+		it.next();
+		Result.replace(it.key(), it.value());
+	}
+
+	d->_this->setStyleSheet(Result);
+}
+
+//===========================================================================
+QList<CDockContainerWidget *> CDockManager::openedDockContainers() const
+{
+	QList<CDockContainerWidget *> Result;
+	for (auto DockContainer : d->Containers)
+	{
+		if (DockContainer->hasOpenDockAreas())
+		{
+			Result.append(DockContainer);
+		}
+	}
+	return Result;
+}
+#endif	// 1
 } // namespace ads
 
 //---------------------------------------------------------------------------

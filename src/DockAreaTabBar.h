@@ -208,6 +208,12 @@ Q_SIGNALS:
 	 * This signal is emitted when a tab title elide state has been changed
 	 */
 	void elidedChanged(bool elided);
+
+#if 1	// [ALB]
+protected slots:
+	/*! Slot per forzare visualizzazione tab aggiunto [#2431] */
+	void ensureCurrentTabVisible();
+#endif	// 1
 }; // class CDockAreaTabBar
 } // namespace ads
 //-----------------------------------------------------------------------------

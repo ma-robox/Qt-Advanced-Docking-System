@@ -143,7 +143,7 @@ struct DockWidgetTabPrivate
 		bool DockWidgetClosable = DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
 		bool ActiveTabHasCloseButton = testConfigFlag(CDockManager::ActiveTabHasCloseButton);
 		bool AllTabsHaveCloseButton = testConfigFlag(CDockManager::AllTabsHaveCloseButton);
-		bool TabHasCloseButton = (ActiveTabHasCloseButton && active) | AllTabsHaveCloseButton;
+		bool TabHasCloseButton = (ActiveTabHasCloseButton && active) || AllTabsHaveCloseButton;
 		CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
 	}
 
@@ -173,6 +173,9 @@ struct DockWidgetTabPrivate
 			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
 			{
 				DragState = DraggingInactive;
+#if 1
+				_this->NdragStateChanged();
+#endif
 			});
 			return w;
 		}
@@ -215,7 +218,6 @@ struct DockWidgetTabPrivate
 	{
 		return DockWidget->dockManager()->dockFocusController();
 	}
-
 };
 // struct DockWidgetTabPrivate
 
@@ -224,7 +226,9 @@ struct DockWidgetTabPrivate
 DockWidgetTabPrivate::DockWidgetTabPrivate(CDockWidgetTab* _public) :
 	_this(_public)
 {
-
+	DockWidget = Q_NULLPTR;
+	TitleLabel = Q_NULLPTR;
+	IconTextSpacer = Q_NULLPTR;
 }
 
 
@@ -232,7 +236,11 @@ DockWidgetTabPrivate::DockWidgetTabPrivate(CDockWidgetTab* _public) :
 void DockWidgetTabPrivate::createLayout()
 {
 	TitleLabel = new tTabLabel();
+#if 0	// [#2314]
 	TitleLabel->setElideMode(Qt::ElideRight);
+#else
+	TitleLabel->setElideMode(Qt::ElideLeft);
+#endif 
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
@@ -298,6 +306,9 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
+#if 1
+	_this->NdragStateChanged();
+#endif
 	IFloatingWidget* FloatingWidget = nullptr;
 	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DraggingState);
@@ -346,6 +357,13 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 	{
 		setFocusPolicy(Qt::ClickFocus);
 	}*/
+
+#if 1	// [ALB]
+	m_isDarkTheme = false;
+	m_isHovering = false;
+	m_isModified = false;
+	m_isDragged = false;
+#endif	// 1
 }
 
 //============================================================================
@@ -401,7 +419,16 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			 ev->accept();
 			 d->FloatingWidget->finishDragging();
 			 break;
-
+#if 1	// [ALB] Semplice click sul tab -> focus()
+		case DraggingMousePressed:
+		case DraggingInactive:
+			if (d->DockWidget && d->DockWidget->widget())
+			{
+				ev->accept();
+				d->DockWidget->widget()->setFocus();
+			}
+			break;
+#endif	// 1
 		default:; // do nothing
 		}
 	} 
@@ -418,6 +445,10 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 		}
 	}
 
+#if 1
+	NdragStateChanged();
+#endif
+
 	Super::mouseReleaseEvent(ev);
 }
 
@@ -428,6 +459,9 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
     {
     	d->DragState = DraggingInactive;
+#if 1
+		NdragStateChanged();
+#endif
         Super::mouseMoveEvent(ev);
         return;
     }
@@ -650,9 +684,11 @@ void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 		if ((!d->DockArea->dockContainer()->isFloating() || d->DockArea->dockWidgetsCount() > 1)
 			&& d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
 		{
+#if 0		// [ALB] Funzionalità rimossa
 			event->accept();
 			d->saveDragStartMousePosition(internal::globalPositionOf(event));
 			d->startFloating(DraggingInactive);
+#endif
 		}
 	}
 
@@ -757,8 +793,57 @@ void CDockWidgetTab::setIconSize(const QSize& Size)
 }
 
 
+#if 1	// [ALB]
+//============================================================================
+void CDockWidgetTab::initUi(bool isDarkTheme)
+{
+	setDarkTheme(isDarkTheme);
+	updateStyle();
+}
 
+//============================================================================
+void CDockWidgetTab::enterEvent(QEvent *e)
+{
+	Q_UNUSED(e);
+	setHovering(true);
+	updateStyle();
+}
 
+//============================================================================
+void CDockWidgetTab::leaveEvent(QEvent *e)
+{
+	Q_UNUSED(e);
+	setHovering(false);
+	updateStyle();
+}
+
+//============================================================================
+void CDockWidgetTab::setModified(bool fl)
+{
+	if (m_isModified != fl)
+	{
+		m_isModified = fl;
+		updateStyle();
+	}
+}
+
+//============================================================================
+bool CDockWidgetTab::isDragging()
+{
+	return d->isDraggingState(DraggingFloatingWidget);
+}
+
+//============================================================================
+void CDockWidgetTab::NdragStateChanged()
+{
+	// Notifica cambio stato di trascinamento
+	if (m_isDragged != isDragging())
+	{
+		m_isDragged = isDragging();
+		emit dragStateChanged(m_isDragged);
+	}
+}
+#endif	// 1
 } // namespace ads
 //---------------------------------------------------------------------------
 // EOF DockWidgetTab.cpp

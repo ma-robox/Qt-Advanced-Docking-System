@@ -390,7 +390,12 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 //============================================================================
 void CDockAreaTitleBar::updateDockWidgetActionsButtons()
 {
+#if 0
 	CDockWidget* DockWidget = d->TabBar->currentTab()->dockWidget();
+#else
+	CDockWidgetTab *currentTab = d->TabBar->currentTab();
+	CDockWidget* DockWidget = (currentTab)? currentTab->dockWidget() : nullptr;
+#endif
 	if (!d->DockWidgetActionsButtons.isEmpty())
 	{
 		for (auto Button : d->DockWidgetActionsButtons)
@@ -400,6 +405,10 @@ void CDockAreaTitleBar::updateDockWidgetActionsButtons()
 		}
 		d->DockWidgetActionsButtons.clear();
 	}
+#if 1
+	if (!DockWidget)
+		return;
+#endif
 
 	auto Actions = DockWidget->titleBarActions();
 	if (Actions.isEmpty())
@@ -491,11 +500,32 @@ void CDockAreaTitleBar::mouseReleaseEvent(QMouseEvent* ev)
 		auto CurrentDragState = d->DragState;
 		d->DragStartMousePos = QPoint();
 		d->DragState = DraggingInactive;
+#if 0
 		if (DraggingFloatingWidget == CurrentDragState)
 		{
 			d->FloatingWidget->finishDragging();
 		}
+#else	//[ALB]
+		switch (CurrentDragState)
+		{
+		case DraggingFloatingWidget:
+			d->FloatingWidget->finishDragging();
+			break;
 
+		// [ALB] Semplice click sul tab -> focus()
+		case DraggingMousePressed:
+		case DraggingInactive:
+			if (d->DockArea && d->DockArea->currentDockWidget())
+			{
+				ev->accept();
+				QWidget *w = d->DockArea->currentDockWidget();
+				if (((CDockWidget *)w)->widget())
+					w = ((CDockWidget *)w)->widget();
+				w->setFocus();
+			}
+			break;
+		}
+#endif
 		return;
 	}
 	Super::mouseReleaseEvent(ev);
@@ -555,6 +585,7 @@ void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent* ev)
 //============================================================================
 void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
+#if 0	// [ALB] Feature disabilitata
 	// If this is the last dock area in a dock container it does not make
 	// sense to move it to a new floating widget and leave this one
 	// empty
@@ -568,6 +599,9 @@ void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 		return;
 	}
 	d->makeAreaFloating(event->pos(), DraggingInactive);
+#else
+	Q_UNUSED(event);
+#endif
 }
 
 

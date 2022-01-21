@@ -366,6 +366,27 @@ Q_SIGNALS:
 	 * via toggle view function
 	 */
 	void viewToggled(bool Open);
+
+#if 1	// [ALB]
+public:
+	/*! Helper selezione widget successivo */
+	CDockWidget* nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false);
+
+	/*! Helper selezione widget precedente */
+	CDockWidget* previousOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false);
+
+	/*! Reload UI for theme change */
+	void initUi();
+
+	/*! Imposta dock widget speciale */
+	void setCentralDockWidget(CDockWidget *CentralDockWidget);
+
+	/*! Imposta dock widget corrente */
+	void setActiveDockWidget(CDockWidget *DockWidget);
+
+protected:
+	CDockWidget *m_CentralDockWidget;
+#endif	// 1
 }; // class DockAreaWidget
 } // namespace ads
 

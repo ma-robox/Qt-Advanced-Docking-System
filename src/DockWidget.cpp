@@ -297,12 +297,20 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	{
 		setFocusPolicy(Qt::ClickFocus);
 	}
+
+#if 1	// [ALB]
+	connect(d->TabWidget, &CDockWidgetTab::dragStateChanged, this, &CDockWidget::setIsDragging);
+	m_dragState = false;
+#endif
 }
 
 //============================================================================
 CDockWidget::~CDockWidget()
 {
     ADS_PRINT("~CDockWidget()");
+#if 1	// [ALB]
+	disconnect(d->TabWidget, &CDockWidgetTab::dragStateChanged, this, &CDockWidget::setIsDragging);
+#endif
 	delete d;
 }
 
@@ -439,6 +447,11 @@ CDockManager* CDockWidget::dockManager() const
 void CDockWidget::setDockManager(CDockManager* DockManager)
 {
 	d->DockManager = DockManager;
+
+#if 1	// [ALB] NOTE: chiama il restyle solo su assegnazione a manager esistente
+	if (d->DockManager && tabWidget())
+		d->DockManager->tabRestyleRequest(tabWidget());
+#endif	// 1
 }
 
 
@@ -1049,7 +1062,23 @@ void CDockWidget::raise()
 	}
 }
 
+#if 1	//[ALB]
+//============================================================================
+void CDockWidget::setIsDragging(bool dragging)
+{
+	if (m_dragState != dragging)
+	{
+		m_dragState = dragging;
+		emit dragStateChanged(m_dragState);
+	}
+}
 
+//============================================================================
+bool CDockWidget::isDragging()
+{
+	return m_dragState;
+}
+#endif
 } // namespace ads
 
 //---------------------------------------------------------------------------

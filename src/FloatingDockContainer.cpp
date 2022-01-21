@@ -39,6 +39,9 @@
 #include <QAbstractButton>
 #include <QElapsedTimer>
 #include <QTime>
+#if 1
+#include <QMenuBar>
+#endif
 
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
@@ -407,6 +410,16 @@ struct FloatingDockContainerPrivate
 	void setState(eDragState StateId)
 	{
 		DraggingState = StateId;
+#if 1
+		if (!DockContainer)
+			return;
+		for (auto area : DockContainer->openedDockAreas())
+		{
+			if (area->currentDockWidget())
+				area->currentDockWidget()->setIsDragging(StateId == DraggingFloatingWidget);
+		}
+
+#endif
 	}
 
 	void setWindowTitle(const QString &Text)
@@ -429,11 +442,20 @@ struct FloatingDockContainerPrivate
 		// reflect CurrentWidget's title if configured to do so, otherwise display application name as window title
 		if (testConfigFlag(CDockManager::FloatingContainerHasWidgetTitle))
 		{
+#if 0	// [ALB]
 			setWindowTitle(CurrentWidget->windowTitle());
+#else
+			setWindowTitle(CurrentWidget->windowTitle() + DockManager->titleExtra());
+#endif	// [ALB]
 		}
 		else
 		{
+#if 0	// [ALB]
 			setWindowTitle(qApp->applicationDisplayName());
+#else
+			setWindowTitle(qApp->applicationDisplayName() + DockManager->titleExtra());
+#endif	// [ALB]
+
 		}
 
 		// reflect CurrentWidget's icon if configured to do so, otherwise display application icon as window icon
@@ -662,7 +684,15 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	l->setContentsMargins(0, 0, 0, 0);
 	l->setSpacing(0);
 	setLayout(l);
+#if 1
+	m_menuBar = new QMenuBar(this);
+	l->addWidget(m_menuBar);
 	l->addWidget(d->DockContainer);
+	l->setStretch(0, 0);
+	l->setStretch(1, 1);
+#else
+	l->addWidget(d->DockContainer);
+#endif
 #endif
 
 	DockManager->registerFloatingWidget(this);
@@ -701,6 +731,9 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
 CFloatingDockContainer::~CFloatingDockContainer()
 {
 	ADS_PRINT("~CFloatingDockContainer");
+#if 1	// [ALB]
+	m_menuBar = Q_NULLPTR;
+#endif
 	if (d->DockManager)
 	{
 		d->DockManager->removeFloatingWidget(this);
@@ -805,6 +838,7 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 
 	if (isClosable())
 	{
+#if 0	//[ALB] Testiamo TUTTI i dockWidget presenti, non solo 1
 		auto TopLevelDockWidget = topLevelDockWidget();
 		if (TopLevelDockWidget && TopLevelDockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
 		{
@@ -813,7 +847,24 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 				return;
 			}
 		}
+#else
+		bool canHide = true;
+		for (auto DockArea : d->DockContainer->openedDockAreas())
+		{
+			for (auto DockWidget : DockArea->openedDockWidgets())
+			{
+				if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+				{
+					canHide = false;
+					DockWidget->closeDockWidgetInternal();
+				}
+				else
+					DockWidget->toggleView(false);
+			}
+		}
 
+		if (canHide)
+#endif
 		// In Qt version after 5.9.2 there seems to be a bug that causes the
 		// QWidget::event() function to not receive any NonClientArea mouse
 		// events anymore after a close/show cycle. The bug is reported here:
@@ -823,7 +874,7 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 		// Starting from Qt version 5.12.2 this seems to work again. But
 		// now the QEvent::NonClientAreaMouseButtonPress function returns always
 		// Qt::RightButton even if the left button was pressed
-        this->hide();
+			this->hide();
 	}
 }
 
@@ -962,7 +1013,11 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			    SLOT(onDockAreaCurrentChanged(int)));
 			d->SingleDockArea = nullptr;
 		}
+#if 0	// [ALB]
 		d->setWindowTitle(qApp->applicationDisplayName());
+#else
+		d->setWindowTitle(qApp->applicationDisplayName() + d->DockManager->titleExtra());
+#endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}
 }
@@ -989,7 +1044,11 @@ void CFloatingDockContainer::updateWindowTitle()
 	}
 	else
 	{
+#if 0	// [ALB]
 		d->setWindowTitle(qApp->applicationDisplayName());
+#else
+		d->setWindowTitle(qApp->applicationDisplayName() + d->DockManager->titleExtra());
+#endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}
 }

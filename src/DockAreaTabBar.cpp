@@ -36,6 +36,9 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QtGlobal>
+#if 1	// [#2431]
+#include <QTimer>
+#endif
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
@@ -217,6 +220,10 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
     }
 
 	updateGeometry();
+
+#if 1	// [#2431]
+	QTimer::singleShot(50, this, &CDockAreaTabBar::ensureCurrentTabVisible);
+#endif
 }
 
 
@@ -294,6 +301,7 @@ int CDockAreaTabBar::currentIndex() const
 //===========================================================================
 CDockWidgetTab* CDockAreaTabBar::currentTab() const
 {
+#if 0
 	if (d->CurrentIndex < 0)
 	{
 		return nullptr;
@@ -302,6 +310,12 @@ CDockWidgetTab* CDockAreaTabBar::currentTab() const
 	{
 		return qobject_cast<CDockWidgetTab*>(d->TabsLayout->itemAt(d->CurrentIndex)->widget());
 	}
+#else
+	if ((d->CurrentIndex >= 0) &&
+		(d->TabsLayout->itemAt(d->CurrentIndex) != nullptr))
+		return qobject_cast<CDockWidgetTab *>(d->TabsLayout->itemAt(d->CurrentIndex)->widget());
+	return nullptr;
+#endif
 }
 
 
@@ -462,7 +476,11 @@ bool CDockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
     case QEvent::LayoutRequest:
          updateGeometry();
          break;
-
+#if 1	// [ALB]
+	case QEvent::Wheel:
+		wheelEvent((QWheelEvent *)event);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -498,6 +516,17 @@ QSize CDockAreaTabBar::sizeHint() const
 	return d->TabsContainerWidget->sizeHint();
 }
 
+
+#if 1	// [ALB]
+//===========================================================================
+void CDockAreaTabBar::ensureCurrentTabVisible()
+{
+	ads::CDockWidgetTab *tab = currentTab();
+	if (!tab)
+		return;
+	ensureWidgetVisible(tab);
+}
+#endif	// 1
 } // namespace ads
 
 

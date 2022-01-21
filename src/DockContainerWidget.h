@@ -290,6 +290,12 @@ Q_SIGNALS:
 	 * toggleView() function
 	 */
 	void dockAreaViewToggled(ads::CDockAreaWidget* DockArea, bool Open);
+
+#if 1	//[ALB]
+public:
+	/*! Helper impostazione programmatica dimensione aree */
+	QSplitter * mainSplitter() const { return rootSplitter(); }
+#endif	// 1
 }; // class DockContainerWidget
 } // namespace ads
 //-----------------------------------------------------------------------------

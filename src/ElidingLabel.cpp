@@ -30,6 +30,7 @@
 #include "ElidingLabel.h"
 #include <QMouseEvent>
 
+#define minCharsInLabel		22				// [#2425] Numero minimo di caratteri visualizzati in etichetta tab 
 
 namespace ads
 {
@@ -174,7 +175,11 @@ QSize CElidingLabel::minimumSizeHint() const
     }
     const QFontMetrics  &fm = fontMetrics();
     #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
-        QSize size(fm.horizontalAdvance(d->Text.left(2) + "…"), fm.height());
+		#if 0 // [#2425]
+			QSize size(fm.horizontalAdvance(d->Text.left(2) + "…"), fm.height());
+		#else
+			QSize size(fm.horizontalAdvance((d->Text.size() > minCharsInLabel)? (d->Text.left(minCharsInLabel - 1) + "…") : (d->Text)), fm.height());
+		#endif	
     #else
         QSize size(fm.width(d->Text.left(2) + "…"), fm.height());
     #endif

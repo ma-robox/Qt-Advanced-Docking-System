@@ -599,6 +599,23 @@ Q_SIGNALS:
      * The features parameter gives the new value of the property.
      */
     void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
+
+#if 1
+public:
+    /*! Cambio stato di trascinamento del dockWidget */
+    void setIsDragging(bool dragging);
+
+    /*! Richiesta stato di trascinamento */
+    bool isDragging();
+
+Q_SIGNALS:
+    /*! Segnale di cambio di stato di trascinamento */
+    void dragStateChanged(bool drag);
+
+protected:
+    /* Flag interno per lo stato di trascinamento */
+    bool m_dragState;
+#endif
 }; // class DockWidget
 } // namespace ads
 

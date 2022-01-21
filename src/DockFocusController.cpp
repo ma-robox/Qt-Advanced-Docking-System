@@ -303,6 +303,10 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
 //===========================================================================
 void CDockFocusController::setDockWidgetTabFocused(CDockWidgetTab* Tab)
 {
+#if 1
+	if (!Tab)
+		return;
+#endif
 	auto DockWidget = Tab->dockWidget();
 	if (DockWidget)
 	{

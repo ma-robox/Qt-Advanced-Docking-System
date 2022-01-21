@@ -380,7 +380,12 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 	{
 		Q_EMIT d->DockManager->dockAreaCreated(this);
 	}
+
+#if 1	// [ALB]
+	m_CentralDockWidget = Q_NULLPTR;
+#endif	//1
 }
+
 
 //============================================================================
 CDockAreaWidget::~CDockAreaWidget()
@@ -604,6 +609,22 @@ void CDockAreaWidget::setCurrentIndex(int index)
 		return;
 	}
 
+#if 1	// [ALB]
+	if ((nw == m_CentralDockWidget) && (TabBar->count() != 1))
+	{
+		// [#2364]
+		int newindex = index + 1;
+		if (newindex > (TabBar->count() - 1))
+			newindex -= 2;
+		if (newindex < 0)
+			return;
+		auto nw = d->ContentsLayout->widget(newindex);
+		if (cw == nw && !nw->isHidden())
+		{
+			return;
+		}
+	}
+#endif	// 1
     Q_EMIT currentChanging(index);
     TabBar->setCurrentIndex(index);
 	d->ContentsLayout->setCurrentIndex(index);
@@ -1045,6 +1066,77 @@ bool CDockAreaWidget::event(QEvent *e)
 }
 #endif
 
+#if 1	// [ALB]
+//============================================================================
+CDockWidget* CDockAreaWidget::nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough)
+{
+	CDockWidget *widget = Q_NULLPTR;
+	auto openDockWidgets = openedDockWidgets();
+	int currentIndex = openDockWidgets.indexOf(DockWidget);
+
+	// Esistono altri widget
+	if ((openDockWidgets.size() == 1) || (currentIndex == -1))
+		return Q_NULLPTR;
+	
+	int lastIndex = (openDockWidgets.size() - 1);
+	if (currentIndex < lastIndex)
+		widget = openDockWidgets.at(currentIndex + 1);
+	else if (cycleThrough && currentIndex != 0)
+		widget = openDockWidgets.at(0);
+	
+	if (m_CentralDockWidget && m_CentralDockWidget == widget)
+		widget = nextOpenedWidget(m_CentralDockWidget, cycleThrough);
+
+	return widget;
+}
+
+//============================================================================
+CDockWidget* CDockAreaWidget::previousOpenedWidget(CDockWidget* DockWidget, bool cycleThrough)
+{
+	CDockWidget *widget = Q_NULLPTR;
+	auto openDockWidgets = openedDockWidgets();
+	int currentIndex = openDockWidgets.indexOf(DockWidget);
+
+	// Esistono altri widget
+	if ((openDockWidgets.size() == 1) || (currentIndex == -1))
+		return Q_NULLPTR;
+	
+	int lastIndex = (openDockWidgets.size() - 1);
+	if (currentIndex > 0)
+		widget = openDockWidgets.at(currentIndex - 1);
+	else if (cycleThrough && (currentIndex != lastIndex))
+		widget = openDockWidgets.at(lastIndex);
+	
+	if (m_CentralDockWidget && m_CentralDockWidget == widget)
+		widget = previousOpenedWidget(m_CentralDockWidget, cycleThrough);
+
+	return widget;
+}
+
+//============================================================================
+void CDockAreaWidget::initUi()
+{
+	internal::setButtonIcon(titleBarButton(ads::TitleBarButtonClose), QStyle::SP_TitleBarCloseButton, DockAreaCloseIcon);
+	internal::setButtonIcon(titleBarButton(ads::TitleBarButtonTabsMenu), QStyle::SP_TitleBarUnshadeButton, DockAreaMenuIcon);
+	internal::setButtonIcon(titleBarButton(ads::TitleBarButtonUndock), QStyle::SP_TitleBarNormalButton, DockAreaUndockIcon);
+	internal::repolishStyle(this, internal::RepolishIgnoreChildren);
+}
+
+//============================================================================
+void CDockAreaWidget::setCentralDockWidget(CDockWidget *CentralDockWidget)
+{
+	m_CentralDockWidget = CentralDockWidget;
+}
+
+//============================================================================
+void CDockAreaWidget::setActiveDockWidget(CDockWidget *DockWidget)
+{
+	auto dockWidgetList = dockWidgets();
+	int index = dockWidgetList.indexOf(DockWidget);
+	if (index > -1)
+		setCurrentIndex(index);
+}
+#endif	// 1
 } // namespace ads
 
 //---------------------------------------------------------------------------

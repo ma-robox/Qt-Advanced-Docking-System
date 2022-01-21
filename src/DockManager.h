@@ -635,6 +635,65 @@ Q_SIGNALS:
      * The focused dock widget is the one that is highlighted in the GUI
      */
     void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
+
+#if 1	// [ALB]
+public Q_SLOTS:
+	/**
+	 * Aggiorna il nome di un DockWidget
+	 * \param Dockwidget Ptr al widget da aggiornare
+	 * \result Esito logico aggiornamento, falso se widget non trovato
+	 */
+	void updateDockWidgetName(CDockWidget *Dockwidget);
+
+public:
+	/**
+	 * Restituisce la prossima dockArea
+	 * \param area Ptr all'area di riferimento
+	 * \result Ptr alla prossima dockArea in successione
+	 */
+	CDockAreaWidget *nextOpenedDockArea(CDockAreaWidget *area, bool cycle = false);
+
+	/**
+	* Restituisce la precedente dockArea
+	* \param area Ptr all'area di riferimento
+	* \result Ptr alla precedente dockArea in successione
+	*/
+	CDockAreaWidget *previousOpenedDockArea(CDockAreaWidget *area, bool cycle = false);
+
+	/**
+	 * Restituisce il prossima dockContainer
+	 * \param area Ptr al contenitore di riferimento
+	 * \result Ptr al prossima dockContainer in successione
+	 */
+	CDockContainerWidget *nextOpenedDockContainer(CDockContainerWidget *container, bool cycle = false);
+
+	/**
+	* Restituisce il precedente dockContainer
+	* \param area Ptr al contenitore di riferimento
+	* \result Ptr al precedente dockContainer in successione
+	*/
+	CDockContainerWidget *previousOpenedDockContainer(CDockContainerWidget *container, bool cycle = false);
+
+	/*! Restyle delle tab */
+	virtual void tabRestyleRequest(CDockWidgetTab *tab);
+
+	/*! Caricamento custom dello stylesheet */
+	void loadCustomStylesheet(QHash<QString, QString> tagColorDict);
+
+	/**
+	 * Returns the list of dock containers that are not closed or empty
+	 * If all dock widgets in a dock area are closed, the dock area will be closed
+	 */
+	QList<CDockContainerWidget *> openedDockContainers() const;
+
+	/*! Ritorna testo extra per titolo finestre */
+	QString titleExtra() { return m_titleExtra; }
+
+protected:
+	/*! Testo extra per titoli finestre */
+	QString m_titleExtra;
+
+#endif	// 1
 }; // class DockManager
 } // namespace ads
 

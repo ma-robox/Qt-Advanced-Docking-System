@@ -42,6 +42,9 @@
 #endif
 
 class CDockingStateReader;
+#if 1	// [ALB]
+class QMenuBar;
+#endif
 
 namespace ads
 {
@@ -172,7 +175,13 @@ protected:
 	/**
 	 * Call this function to update the window title
 	 */
+#if 0
     void updateWindowTitle();
+#else
+public:
+	void updateWindowTitle();
+protected:
+#endif
 
 protected: // reimplements QWidget
 	virtual void changeEvent(QEvent *event) override;
@@ -299,7 +308,15 @@ public:
 	 */
 	bool hasNativeTitleBar();
 #endif
+#if 1	// [ALB]
+public:
+	/*! Ptr a toolbar */
+	QMenuBar *menuBar() const {return m_menuBar; }
 
+protected:
+	/*! Ptr a toolbar */
+	QMenuBar *m_menuBar;
+#endif
 }; // class FloatingDockContainer
 }
  // namespace ads
