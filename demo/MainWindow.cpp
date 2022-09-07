@@ -433,6 +433,7 @@ void MainWindowPrivate::createContent()
 		int Width = Splitter->width();
 		Splitter->setSizes({Width * 2/3, Width * 1/3});
 	});
+	DockWidget->setWindowTitle(QString("My " + DockWidget->windowTitle()));
 
 	// Now we add a custom button to the dock area title bar that will create
 	// new editor widgets when clicked
@@ -457,7 +458,21 @@ void MainWindowPrivate::createContent()
 	DockManager->addDockWidget(ads::TopDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	auto BottomDockArea = DockManager->addDockWidget(ads::BottomDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
-	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(), BottomDockArea);
+	auto LabelDockWidget = createLongTextLabelDockWidget();
+	std::cout << "DockWidget " << LabelDockWidget->objectName().toStdString() << std::endl;
+	DockManager->addDockWidget(ads::CenterDockWidgetArea, LabelDockWidget, BottomDockArea);
+
+	// Tests CustomCloseHandling without DeleteOnClose
+	LabelDockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
+	QObject::connect(LabelDockWidget, &ads::CDockWidget::closeRequested, [LabelDockWidget, this]()
+	{
+		int Result = QMessageBox::question(_this, "Custom Close Request",
+			"Do you really want to close this dock widget?");
+		if (QMessageBox::Yes == Result)
+		{
+			LabelDockWidget->closeDockWidget();
+		}
+	});
 
     Action = ui.menuTests->addAction(QString("Set %1 Floating").arg(DockWidget->windowTitle()));
     DockWidget->connect(Action, SIGNAL(triggered()), SLOT(setFloating()));
@@ -474,6 +489,7 @@ void MainWindowPrivate::createContent()
     // Test visible floating dock widget
     DockWidget = createCalendarDockWidget();
     DockManager->addDockWidgetFloating(DockWidget);
+    DockWidget->setWindowTitle(QString("My " + DockWidget->windowTitle()));
 
 
 #ifdef Q_OS_WIN

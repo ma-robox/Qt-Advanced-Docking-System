@@ -835,47 +835,43 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 	ADS_PRINT("CFloatingDockContainer closeEvent");
 	d->setState(DraggingInactive);
 	event->ignore();
-
-	if (isClosable())
+	if (!isClosable())
 	{
-#if 0	//[ALB] Testiamo TUTTI i dockWidget presenti, non solo 1
-		auto TopLevelDockWidget = topLevelDockWidget();
-		if (TopLevelDockWidget && TopLevelDockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
-		{
-			if (!TopLevelDockWidget->closeDockWidgetInternal())
-			{
-				return;
-			}
-		}
-#else
-		bool canHide = true;
-		for (auto DockArea : d->DockContainer->openedDockAreas())
-		{
-			for (auto DockWidget : DockArea->openedDockWidgets())
-			{
-				if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
-				{
-					canHide = false;
-					DockWidget->closeDockWidgetInternal();
-				}
-				else
-					DockWidget->toggleView(false);
-			}
-		}
-
-		if (canHide)
-#endif
-		// In Qt version after 5.9.2 there seems to be a bug that causes the
-		// QWidget::event() function to not receive any NonClientArea mouse
-		// events anymore after a close/show cycle. The bug is reported here:
-		// https://bugreports.qt.io/browse/QTBUG-73295
-		// The following code is a workaround for Qt versions > 5.9.2 that seems
-		// to work
-		// Starting from Qt version 5.12.2 this seems to work again. But
-		// now the QEvent::NonClientAreaMouseButtonPress function returns always
-		// Qt::RightButton even if the left button was pressed
-			this->hide();
+		return;
 	}
+
+	bool HasOpenDockWidgets = false;
+	for (auto DockWidget : d->DockContainer->openedDockWidgets())
+	{
+		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
+		{
+			bool Closed = DockWidget->closeDockWidgetInternal();
+			if (!Closed)
+			{
+				HasOpenDockWidgets = true;
+			}
+		}
+		else
+		{
+			DockWidget->toggleView(false);
+		}
+	}
+
+	if (HasOpenDockWidgets)
+	{
+		return;
+	}
+
+	// In Qt version after 5.9.2 there seems to be a bug that causes the
+	// QWidget::event() function to not receive any NonClientArea mouse
+	// events anymore after a close/show cycle. The bug is reported here:
+	// https://bugreports.qt.io/browse/QTBUG-73295
+	// The following code is a workaround for Qt versions > 5.9.2 that seems
+	// to work
+	// Starting from Qt version 5.12.2 this seems to work again. But
+	// now the QEvent::NonClientAreaMouseButtonPress function returns always
+	// Qt::RightButton even if the left button was pressed
+	this->hide();
 }
 
 //============================================================================
@@ -1298,12 +1294,12 @@ void CFloatingDockContainer::resizeEvent(QResizeEvent *event)
 	Super::resizeEvent(event);
 }
 
-
+static bool s_mousePressed = false;
 //============================================================================
 void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 {
 	Super::moveEvent(event);
-	if (!d->IsResizing && event->spontaneous())
+	if (!d->IsResizing && event->spontaneous() && s_mousePressed)
 	{
 		d->DraggingState = DraggingFloatingWidget;
 		d->updateDropOverlays(QCursor::pos());
@@ -1311,6 +1307,23 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	d->IsResizing = false;
 }
 
+//============================================================================
+bool CFloatingDockContainer::event(QEvent *e)
+{
+	bool result = Super::event(e);
+	switch (e->type())
+	{
+	case QEvent::WindowActivate:
+		s_mousePressed = false;
+		break;
+	case QEvent::WindowDeactivate:
+		s_mousePressed = true;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
 
 //============================================================================
 bool CFloatingDockContainer::hasNativeTitleBar()

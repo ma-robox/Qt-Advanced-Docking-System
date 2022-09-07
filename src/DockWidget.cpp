@@ -470,6 +470,14 @@ CDockContainerWidget* CDockWidget::dockContainer() const
 
 
 //============================================================================
+CFloatingDockContainer* CDockWidget::floatingDockContainer() const
+{
+	auto DockContainer = dockContainer();
+	return DockContainer ? DockContainer->floatingWidget() : nullptr;
+}
+
+
+//============================================================================
 CDockAreaWidget* CDockWidget::dockAreaWidget() const
 {
 	return d->DockArea;
@@ -560,6 +568,7 @@ void CDockWidget::toggleView(bool Open)
 	{
 		Open = true;
 	}
+
 	// If the dock widget state is different, then we really need to toggle
 	// the state. If we are in the right state, then we simply make this
 	// dock widget the current dock widget
@@ -569,7 +578,7 @@ void CDockWidget::toggleView(bool Open)
 	}
 	else if (Open && d->DockArea)
 	{
-		d->DockArea->setCurrentDockWidget(this);
+		raise();
 	}
 }
 
@@ -682,6 +691,12 @@ bool CDockWidget::event(QEvent *e)
 			if (d->DockArea)
 			{
 				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
+			}
+
+			auto FloatingWidget = floatingDockContainer();
+			if (FloatingWidget)
+			{
+				FloatingWidget->updateWindowTitle();
 			}
 			Q_EMIT titleChanged(title);
 		}
