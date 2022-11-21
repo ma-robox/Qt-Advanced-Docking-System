@@ -451,9 +451,9 @@ struct FloatingDockContainerPrivate
 		else
 		{
 #if 0	// [ALB]
-			setWindowTitle(qApp->applicationDisplayName());
+			setWindowTitle(floatingContainersTitle());
 #else
-			setWindowTitle(qApp->applicationDisplayName() + DockManager->titleExtra());
+			setWindowTitle(floatingContainersTitle() + DockManager->titleExtra());
 #endif	// [ALB]
 
 		}
@@ -475,6 +475,18 @@ struct FloatingDockContainerPrivate
 	 * Handles escape key press when dragging around the floating widget
 	 */
 	void handleEscapeKey();
+
+	/**
+	 * Returns the title used by all FloatingContainer that does not
+	 * reflect the title of the current dock widget.
+	 *
+	 * If not title was set with CDockManager::setFloatingContainersTitle(),
+	 * it returns QGuiApplication::applicationDisplayName().
+	 */
+	static QString floatingContainersTitle()
+	{
+		return CDockManager::floatingContainersTitle();
+	}
 };
 // struct FloatingDockContainerPrivate
 
@@ -536,6 +548,15 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		return;
 	}
+
+#ifdef Q_OS_LINUX
+	// Prevent display of drop overlays and docking as long as a model dialog
+	// is active
+    if (qApp->activeModalWidget())
+    {
+        return;
+    }
+#endif
 
 	auto Containers = DockManager->dockContainers();
 	CDockContainerWidget *TopContainer = nullptr;
@@ -1010,9 +1031,9 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			d->SingleDockArea = nullptr;
 		}
 #if 0	// [ALB]
-		d->setWindowTitle(qApp->applicationDisplayName());
+		d->setWindowTitle(d->floatingContainersTitle());
 #else
-		d->setWindowTitle(qApp->applicationDisplayName() + d->DockManager->titleExtra());
+		d->setWindowTitle(d->floatingContainersTitle() + d->DockManager->titleExtra());
 #endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}
@@ -1041,9 +1062,9 @@ void CFloatingDockContainer::updateWindowTitle()
 	else
 	{
 #if 0	// [ALB]
-		d->setWindowTitle(qApp->applicationDisplayName());
+		d->setWindowTitle(d->floatingContainersTitle());
 #else
-		d->setWindowTitle(qApp->applicationDisplayName() + d->DockManager->titleExtra());
+		d->setWindowTitle(d->floatingContainersTitle() + d->DockManager->titleExtra());
 #endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}

@@ -544,6 +544,14 @@ void MainWindowPrivate::createActions()
 	_this->connect(a, SIGNAL(triggered()), SLOT(createEditor()));
 	ui.menuTests->addAction(a);
 
+	a = ui.toolBar->addAction("Create Editor Tab");
+	a->setProperty("Floating", false);
+	a->setToolTip("Creates a editor tab and inserts it as second tab into an area");
+	a->setIcon(svgIcon(":/adsdemo/images/tab.svg"));
+	a->setProperty("Tabbed", true);
+	_this->connect(a, SIGNAL(triggered()), SLOT(createEditor()));
+	ui.menuTests->addAction(a);
+
 	a = ui.toolBar->addAction("Create Floating Table");
 	a->setToolTip("Creates floating dynamic dockable table with millions of entries");
 	a->setIcon(svgIcon(":/adsdemo/images/grid_on.svg"));
@@ -663,11 +671,11 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	d->DockManager = new CDockManager(this);
 
  #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-	connect(d->PerspectiveComboBox, SIGNAL(activated(const QString&)),
-		d->DockManager, SLOT(openPerspective(const QString&)));
+	connect(d->PerspectiveComboBox, SIGNAL(activated(QString)),
+		d->DockManager, SLOT(openPerspective(QString)));
  #else
-    connect(d->PerspectiveComboBox, SIGNAL(textActivated(const QString&)),
-        d->DockManager, SLOT(openPerspective(const QString&)));
+    connect(d->PerspectiveComboBox, SIGNAL(textActivated(QString)),
+        d->DockManager, SLOT(openPerspective(QString)));
  #endif
 
 	d->createContent();
@@ -769,6 +777,8 @@ void CMainWindow::createEditor()
 	QObject* Sender = sender();
 	QVariant vFloating = Sender->property("Floating");
 	bool Floating = vFloating.isValid() ? vFloating.toBool() : true;
+	QVariant vTabbed = Sender->property("Tabbed");
+	bool Tabbed = vTabbed.isValid() ? vTabbed.toBool() : true;
 	auto DockWidget = d->createEditorWidget();
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetForceCloseWithArea, true);
@@ -780,31 +790,38 @@ void CMainWindow::createEditor()
 		FloatingWidget->move(QPoint(20, 20));
 		d->LastCreatedFloatingEditor = DockWidget;
 		d->LastDockedEditor.clear();
+		return;
     }
-    else
-    {
-    	ads::CDockAreaWidget* EditorArea = d->LastDockedEditor ? d->LastDockedEditor->dockAreaWidget() : nullptr;
-    	if (EditorArea)
-    	{
-    		std::cout << "DockAreaCount before: " << EditorArea->dockContainer()->dockAreaCount() << std::endl;
-    		d->DockManager->setConfigFlag(ads::CDockManager::EqualSplitOnInsertion, true);
-    		d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, EditorArea);
-    		std::cout << "DockAreaCount after: " << DockWidget->dockContainer()->dockAreaCount() << std::endl;
-    	}
-    	else
-    	{
-    		if (d->LastCreatedFloatingEditor)
-    		{
-    			std::cout << "LastCreated" << std::endl;
-    			d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, d->LastCreatedFloatingEditor->dockAreaWidget());
-    		}
-    		else
-    		{
-    			d->DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
-    		}
-    	}
-    	d->LastDockedEditor = DockWidget;
-    }
+
+
+	ads::CDockAreaWidget* EditorArea = d->LastDockedEditor ? d->LastDockedEditor->dockAreaWidget() : nullptr;
+	if (EditorArea)
+	{
+		if (Tabbed)
+		{
+			// Test inserting the dock widget tab at a given position instead
+			// of appending it. This function inserts the new dock widget as
+			// first tab
+			d->DockManager->addDockWidgetTabToArea(DockWidget, EditorArea, 0);
+		}
+		else
+		{
+			d->DockManager->setConfigFlag(ads::CDockManager::EqualSplitOnInsertion, true);
+			d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, EditorArea);
+		}
+	}
+	else
+	{
+		if (d->LastCreatedFloatingEditor)
+		{
+			d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, d->LastCreatedFloatingEditor->dockAreaWidget());
+		}
+		else
+		{
+			d->DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+		}
+	}
+	d->LastDockedEditor = DockWidget;
 }
 
 

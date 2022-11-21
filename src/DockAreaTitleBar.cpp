@@ -307,6 +307,7 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 {
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
+#if 0	// [ALB]
 		bool hasElidedTabTitle = false;
 		for (int i = 0; i < d->TabBar->count(); ++i)
 		{
@@ -322,6 +323,29 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 			}
 		}
 		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
+#else
+		bool hasElidedTabTitle = false;
+		bool hasHiddenTab = false;
+		for (int i = 0; i < d->TabBar->count(); ++i)
+		{
+			if (!d->TabBar->isTabOpen(i))
+			{
+				continue;
+			}
+			CDockWidgetTab *Tab = d->TabBar->tab(i);
+			if (Tab->isTitleElided())
+			{
+				hasElidedTabTitle = true;
+				break;
+			}
+			if (Tab->visibleRegion().isEmpty())
+			{
+				hasHiddenTab = true;
+				break;
+			}
+		}
+		bool visible = (d->TabBar->count() > 1) && (hasElidedTabTitle || hasHiddenTab);
+#endif	// [ALB]
 		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
 	}
 	d->MenuOutdated = true;
@@ -390,12 +414,13 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 //============================================================================
 void CDockAreaTitleBar::updateDockWidgetActionsButtons()
 {
-#if 0
-	CDockWidget* DockWidget = d->TabBar->currentTab()->dockWidget();
-#else
-	CDockWidgetTab *currentTab = d->TabBar->currentTab();
-	CDockWidget* DockWidget = (currentTab)? currentTab->dockWidget() : nullptr;
-#endif
+	auto Tab = d->TabBar->currentTab();
+	if (!Tab)
+	{
+		return;
+	}
+
+	CDockWidget* DockWidget = Tab->dockWidget();
 	if (!d->DockWidgetActionsButtons.isEmpty())
 	{
 		for (auto Button : d->DockWidgetActionsButtons)
@@ -405,10 +430,6 @@ void CDockAreaTitleBar::updateDockWidgetActionsButtons()
 		}
 		d->DockWidgetActionsButtons.clear();
 	}
-#if 1
-	if (!DockWidget)
-		return;
-#endif
 
 	auto Actions = DockWidget->titleBarActions();
 	if (Actions.isEmpty())

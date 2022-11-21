@@ -421,6 +421,10 @@ void CDockAreaWidget::addDockWidget(CDockWidget* DockWidget)
 void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	bool Activate)
 {
+	if (index < 0 || index > d->ContentsLayout->count())
+	{
+		index = d->ContentsLayout->count();
+	}
 	d->ContentsLayout->insertWidget(index, DockWidget);
 	DockWidget->setDockArea(this);
 	DockWidget->tabWidget()->setDockAreaWidget(this);
@@ -453,6 +457,11 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 {
     ADS_PRINT("CDockAreaWidget::removeDockWidget");
+    if (!DockWidget)
+    {
+    	return;
+    }
+
     auto CurrentDockWidget = currentDockWidget();
   	auto NextOpenDockWidget = (DockWidget == CurrentDockWidget) ? nextOpenDockWidget(DockWidget) : nullptr;
 
@@ -1022,7 +1031,7 @@ bool CDockAreaWidget::isCentralWidgetArea() const
         return false;
     }
 
-    return dockManager()->centralWidget() == dockWidgets()[0];
+    return dockManager()->centralWidget() == dockWidgets().constFirst();
 }
 
 

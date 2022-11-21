@@ -42,7 +42,7 @@ struct DockFocusControllerPrivate
 	CDockFocusController *_this;
 	QPointer<CDockWidget> FocusedDockWidget = nullptr;
 	QPointer<CDockAreaWidget> FocusedArea = nullptr;
-	CDockWidget* OldFocusedDockWidget = nullptr;
+	QPointer<CDockWidget> OldFocusedDockWidget = nullptr;
 #ifdef Q_OS_LINUX
      QPointer<CFloatingDockContainer> FloatingWidget = nullptr;
 #endif
@@ -264,7 +264,7 @@ void CDockFocusController::onFocusWindowChanged(QWindow *focusWindow)
 //===========================================================================
 void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidget* focusedNow)
 {
-	Q_UNUSED(focusedOld);
+    Q_UNUSED(focusedOld);
 
 	if (d->DockManager->isRestoringState())
 	{

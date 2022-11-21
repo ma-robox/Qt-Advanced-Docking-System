@@ -45,6 +45,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QApplication>
+#include <QWindow>
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -90,6 +91,8 @@ enum eStateFileVersion
 };
 
 static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
+
+static QString FloatingContainersTitle;
 
 /**
  * Private data class of CDockManager class (pimpl)
@@ -504,6 +507,16 @@ CDockManager::CDockManager(QWidget *parent) :
 
 #ifdef Q_OS_LINUX
 	window()->installEventFilter(this);
+
+    connect(qApp, &QApplication::focusWindowChanged, [](QWindow* focusWindow)
+    {
+        // bring modal dialogs to foreground to ensure that they are in front of any
+        // floating dock widget
+        if (focusWindow && focusWindow->isModal())
+        {
+            focusWindow->raise();
+        }
+    });
 #endif
 }
 
@@ -833,11 +846,11 @@ void CDockManager::restoreHiddenFloatingWidgets()
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
-	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget)
+	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget, int Index)
 {
 	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
 	auto Container = DockAreaWidget ? DockAreaWidget->dockContainer(): this;
-	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget);
+	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget, Index);
 	Q_EMIT dockWidgetAdded(Dockwidget);
 	return AreaOfAddedDockWidget;
 }
@@ -871,9 +884,9 @@ CDockAreaWidget* CDockManager::addDockWidgetTab(DockWidgetArea area,
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidgetTabToArea(CDockWidget* Dockwidget,
-	CDockAreaWidget* DockAreaWidget)
+	CDockAreaWidget* DockAreaWidget, int Index)
 {
-	return addDockWidget(ads::CenterDockWidgetArea, Dockwidget, DockAreaWidget);
+	return addDockWidget(ads::CenterDockWidgetArea, Dockwidget, DockAreaWidget, Index);
 }
 
 
@@ -919,7 +932,7 @@ void CDockManager::removePerspective(const QString& Name)
 void CDockManager::removePerspectives(const QStringList& Names)
 {
 	int Count = 0;
-	for (auto Name : Names)
+	for (const auto& Name : Names)
 	{
 		Count += d->Perspectives.remove(Name);
 	}
@@ -1245,11 +1258,25 @@ void CDockManager::setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<
     }
 }
 
-
 //===========================================================================
 CDockFocusController* CDockManager::dockFocusController() const
 {
 	return d->FocusController;
+}
+
+//===========================================================================
+void CDockManager::setFloatingContainersTitle(const QString& Title)
+{
+	FloatingContainersTitle = Title;
+}
+
+//===========================================================================
+QString CDockManager::floatingContainersTitle()
+{
+	if (FloatingContainersTitle.isEmpty())
+		return qApp->applicationDisplayName();
+
+	return FloatingContainersTitle;
 }
 
 #if 1	// [ALB]

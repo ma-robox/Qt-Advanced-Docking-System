@@ -153,7 +153,7 @@ public:
 	 * Adds dock widget to a existing DockWidgetArea
 	 */
 	CDockAreaWidget* addDockWidgetToDockArea(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* TargetDockArea);
+		CDockAreaWidget* TargetDockArea, int Index = -1);
 
 	/**
 	 * Add dock area to this container
@@ -568,7 +568,6 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 	}
 	else
 	{
-		QList<int> NewSplitterSizes;
 		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		int TargetAreaSize = (InsertParam.orientation() == Qt::Horizontal) ? TargetArea->width() : TargetArea->height();
 		bool AdjustSplitterSizes = true;
@@ -692,7 +691,6 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 	}
 	else
 	{
-		auto Sizes = TargetAreaSplitter->sizes();
 		int TargetAreaSize = (InsertParam.orientation() == Qt::Horizontal) ? TargetArea->width() : TargetArea->height();
 		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		NewSplitter->addWidget(TargetArea);
@@ -1228,11 +1226,11 @@ void DockContainerWidgetPrivate::dumpRecursive(int level, QWidget* widget)
 
 //============================================================================
 CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToDockArea(DockWidgetArea area,
-	CDockWidget* Dockwidget, CDockAreaWidget* TargetDockArea)
+	CDockWidget* Dockwidget, CDockAreaWidget* TargetDockArea, int Index)
 {
 	if (CenterDockWidgetArea == area)
 	{
-		TargetDockArea->addDockWidget(Dockwidget);
+		TargetDockArea->insertDockWidget(Index, Dockwidget);
 		TargetDockArea->updateTitleBarVisibility();
 		return TargetDockArea;
 	}
@@ -1315,7 +1313,7 @@ CDockContainerWidget::~CDockContainerWidget()
 
 //============================================================================
 CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-	CDockAreaWidget* DockAreaWidget)
+	CDockAreaWidget* DockAreaWidget, int Index)
 {
 	CDockAreaWidget* OldDockArea = Dockwidget->dockAreaWidget();
 	if (OldDockArea)
@@ -1326,7 +1324,7 @@ CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockW
 	Dockwidget->setDockManager(d->DockManager);
 	if (DockAreaWidget)
 	{
-		return d->addDockWidgetToDockArea(area, Dockwidget, DockAreaWidget);
+		return d->addDockWidgetToDockArea(area, Dockwidget, DockAreaWidget, Index);
 	}
 	else
 	{
