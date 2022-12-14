@@ -60,16 +60,19 @@
 #include <QToolButton>
 #include <QToolBar>
 #include <QPointer>
+#include <QMap>
+#include <QElapsedTimer>
 
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QRandomGenerator>
+#endif
 
 #ifdef Q_OS_WIN
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QAxWidget>
 #endif
 #endif
-
-#include <QMap>
-#include <QElapsedTimer>
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -80,6 +83,22 @@
 #include "DockComponentsFactory.h"
 #include "StatusDialog.h"
 #include "DockSplitter.h"
+#include "ImageViewer.h"
+
+
+
+/**
+ * Returns a random number from 0 to highest - 1
+ */
+int randomNumberBounded(int highest)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+	return QRandomGenerator::global()->bounded(highest);
+#else
+	qsrand(QTime::currentTime().msec());
+	return qrand() % highest;
+#endif
+}
 
 
 /**
@@ -216,9 +235,11 @@ struct MainWindowPrivate
 		QFileSystemModel* m = new QFileSystemModel(w);
 		m->setRootPath(QDir::currentPath());
 		w->setModel(m);
+		w->setRootIndex(m->index(QDir::currentPath()));
 		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Filesystem %1")
 			.arg(FileSystemCount++));
 		DockWidget->setWidget(w);
+		DockWidget->setIcon(svgIcon(":/adsdemo/images/folder_open.svg"));
 		ui.menuView->addAction(DockWidget->toggleViewAction());
 		// We disable focus to test focus highlighting if the dock widget content
 		// does not support focus
@@ -279,6 +300,7 @@ struct MainWindowPrivate
 
 		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Label %1").arg(LabelCount++));
 		DockWidget->setWidget(l);
+		DockWidget->setIcon(svgIcon(":/adsdemo/images/font_download.svg"));
 		ui.menuView->addAction(DockWidget->toggleViewAction());
 		return DockWidget;
 	}
@@ -313,6 +335,35 @@ struct MainWindowPrivate
 		auto a = OptionsMenu->addAction(QObject::tr("Clear Editor"));
 		w->connect(a, SIGNAL(triggered()), SLOT(clear()));
 
+		return DockWidget;
+	}
+
+	/**
+	 * Creates a simply image viewr
+	 */
+	ads::CDockWidget* createImageViewer()
+	{
+		static int ImageViewerCount = 0;
+		auto w = new CImageViewer();
+		auto ImageIndex = randomNumberBounded(4);
+		auto FileName = ":adsdemo/images/ads_logo.svg";
+
+		// Pick a random image from a number of images
+		switch (ImageIndex)
+		{
+		case 0: FileName = ":adsdemo/images/ads_tile_blue.svg"; break;
+		case 1: FileName = ":adsdemo/images/ads_tile_blue_light.svg"; break;
+		case 2: FileName = ":adsdemo/images/ads_tile_green.svg"; break;
+		case 3: FileName = ":adsdemo/images/ads_tile_orange.svg"; break;
+		}
+
+		auto Result = w->loadFile(FileName);
+		qDebug() << "loadFile result: " << Result;
+		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Image Viewer %1").arg(ImageViewerCount++));
+		DockWidget->setIcon(svgIcon(":/adsdemo/images/photo.svg"));
+		DockWidget->setWidget(w,ads:: CDockWidget::ForceNoScrollArea);
+		auto ToolBar = DockWidget->createDefaultToolBar();
+		ToolBar->addActions(w->actions());
 		return DockWidget;
 	}
 
@@ -459,7 +510,6 @@ void MainWindowPrivate::createContent()
 	auto BottomDockArea = DockManager->addDockWidget(ads::BottomDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	auto LabelDockWidget = createLongTextLabelDockWidget();
-	std::cout << "DockWidget " << LabelDockWidget->objectName().toStdString() << std::endl;
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, LabelDockWidget, BottomDockArea);
 
 	// Tests CustomCloseHandling without DeleteOnClose
@@ -494,6 +544,9 @@ void MainWindowPrivate::createContent()
 
 #ifdef Q_OS_WIN
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    // If opaque undocking is active, then undocking of widgets while
+    // active x widget is visible causes jerking while dragging a floating
+    // widget
     if (!ads::CDockManager::testConfigFlag(ads::CDockManager::OpaqueUndocking))
     {
     	DockManager->addDockWidget(ads::CenterDockWidgetArea, createActiveXWidget(), RighDockArea);
@@ -506,6 +559,10 @@ void MainWindowPrivate::createContent()
 		_this->connect(DockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
 		_this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
 	}
+
+	// Create image viewer
+	DockWidget = createImageViewer();
+	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 }
 
 
@@ -558,6 +615,22 @@ void MainWindowPrivate::createActions()
 	_this->connect(a, SIGNAL(triggered()), SLOT(createTable()));
 	ui.menuTests->addAction(a);
 
+	a = ui.toolBar->addAction("Create Image Viewer");
+	auto ToolButton = qobject_cast<QToolButton*>(ui.toolBar->widgetForAction(a));
+	ToolButton->setPopupMode(QToolButton::InstantPopup);
+	a->setToolTip("Creates floating, docked or pinned image viewer");
+	a->setIcon(svgIcon(":/adsdemo/images/panorama.svg"));
+	ui.menuTests->addAction(a);
+	auto Menu = new QMenu();
+	ToolButton->setMenu(Menu);
+	a = Menu->addAction("Floating Image Viewer");
+	_this->connect(a, SIGNAL(triggered()), SLOT(createImageViewer()));
+	a = Menu->addAction("Docked Image Viewer");
+	_this->connect(a, SIGNAL(triggered()), SLOT(createImageViewer()));
+	a = Menu->addAction("Pinned Image Viewer");
+	_this->connect(a, SIGNAL(triggered()), SLOT(createImageViewer()));
+
+
 	ui.menuTests->addSeparator();
 	a = ui.menuTests->addAction("Show Status Dialog");
 	_this->connect(a, SIGNAL(triggered()), SLOT(showStatusDialog()));
@@ -565,6 +638,12 @@ void MainWindowPrivate::createActions()
 	a = ui.menuTests->addAction("Toggle Label 0 Window Title");
 	_this->connect(a, SIGNAL(triggered()), SLOT(toggleDockWidgetWindowTitle()));
 	ui.menuTests->addSeparator();
+
+	a = ui.toolBar->addAction("Apply VS Style");
+	a->setToolTip("Applies a Visual Studio light style (visual_studio_light.css)." );
+	a->setIcon(svgIcon(":/adsdemo/images/color_lens.svg"));
+	QObject::connect(a, &QAction::triggered, _this, &CMainWindow::applyVsStyle);
+	ui.menuTests->addAction(a);
 }
 
 
@@ -624,7 +703,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
     // uncomment the following line if you want to use opaque undocking and
 	// opaque splitter resizing
-    // CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
+    //CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
 
     // uncomment the following line if you want a fixed tab width that does
 	// not change if the visibility of the close button changes
@@ -654,11 +733,14 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// uncomment the following line if you want a central widget in the main dock container (the dock manager) without a titlebar
 	// If you enable this code, you can test it in the demo with the Calendar 0
 	// dock widget.
-	// CDockManager::setConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar, true);
+	//CDockManager::setConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar, true);
 
 	// uncomment the following line to enable focus highlighting of the dock
 	// widget that has the focus
-	CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+    CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+
+	// uncomment if you would like to enable dock widget auto hiding
+    CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
 
 	// uncomment if you would like to enable an equal distribution of the
 	// available size of a splitter to all contained dock widgets
@@ -747,13 +829,14 @@ void CMainWindow::savePerspective()
 //============================================================================
 void CMainWindow::onViewToggled(bool Open)
 {
+	Q_UNUSED(Open);
 	auto DockWidget = qobject_cast<ads::CDockWidget*>(sender());
 	if (!DockWidget)
 	{
 		return;
 	}
 
-	qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
+	//qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
 }
 
 
@@ -840,6 +923,20 @@ void CMainWindow::onEditorCloseRequested()
 
 
 //============================================================================
+void CMainWindow::onImageViewerCloseRequested()
+{
+	auto DockWidget = qobject_cast<ads::CDockWidget*>(sender());
+	int Result = QMessageBox::question(this, "Close Image Viewer", QString("%1 "
+		"contains unsaved changes? Would you like to close it?")
+		.arg(DockWidget->windowTitle()));
+	if (QMessageBox::Yes == Result)
+	{
+		DockWidget->closeDockWidget();
+	}
+}
+
+
+//============================================================================
 void CMainWindow::createTable()
 {
 	auto DockWidget = d->createTableWidget();
@@ -871,5 +968,47 @@ void CMainWindow::toggleDockWidgetWindowTitle()
 		Title = Title.left(i);
 	}
 	d->WindowTitleTestDockWidget->setWindowTitle(Title);
+}
+
+
+//============================================================================
+void CMainWindow::applyVsStyle()
+{
+	QFile StyleSheetFile(":adsdemo/res/visual_studio_light.css");
+	StyleSheetFile.open(QIODevice::ReadOnly);
+	QTextStream StyleSheetStream(&StyleSheetFile);
+	auto Stylesheet = StyleSheetStream.readAll();
+	StyleSheetFile.close();
+	d->DockManager->setStyleSheet(Stylesheet);
+}
+
+
+//============================================================================
+void CMainWindow::createImageViewer()
+{
+	QAction* a = qobject_cast<QAction*>(sender());
+	qDebug() << "createImageViewer " << a->text();
+
+	auto DockWidget = d->createImageViewer();
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetForceCloseWithArea, true);
+	DockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
+	DockWidget->resize(QSize(640, 480));
+	connect(DockWidget, &ads::CDockWidget::closeRequested, this,
+		&CMainWindow::onImageViewerCloseRequested);
+
+	if (a->text().startsWith("Floating"))
+	{
+		auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
+		FloatingWidget->move(QPoint(20, 20));
+	}
+	else if (a->text().startsWith("Docked"))
+	{
+		d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget);
+	}
+	else if (a->text().startsWith("Pinned"))
+	{
+		d->DockManager->addAutoHideDockWidget(ads::SideBarLeft, DockWidget);
+	}
 }
 

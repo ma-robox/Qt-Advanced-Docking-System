@@ -28,6 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideDockContainer.h>
 #include "DockWidgetTab.h"
 #include "DockManager.h"
 
@@ -91,6 +92,7 @@ enum eStateFileVersion
 };
 
 static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
+static CDockManager::AutoHideFlags StaticAutoHideConfigFlags; // auto hide feature is disabled by default
 
 static QString FloatingContainersTitle;
 
@@ -153,7 +155,7 @@ struct DockManagerPrivate
 	{
 		for (auto DockWidget : DockWidgetsMap)
 		{
-			DockWidget->setProperty("dirty", true);
+			DockWidget->setProperty(internal::DirtyProperty, true);
 		}
 	}
 
@@ -350,6 +352,12 @@ void DockManagerPrivate::restoreDockWidgetsOpenState()
     {
     	if (DockWidget->property(internal::DirtyProperty).toBool())
     	{
+    		// If the DockWidget is an auto hide widget that is not assigned yet,
+    		// then we need to delete the auto hide container now
+    		if (DockWidget->isAutoHide())
+    		{
+    			DockWidget->autoHideDockContainer()->cleanupAndDelete();
+    		}
     		DockWidget->flagAsUnassigned();
             Q_EMIT DockWidget->viewToggled(false);
     	}
@@ -488,6 +496,7 @@ CDockManager::CDockManager(QWidget *parent) :
 	d(new DockManagerPrivate(this))
 {
 	createRootSplitter();
+	createSideTabBarWidgets();
 	QMainWindow* MainWindow = qobject_cast<QMainWindow*>(parent);
 	if (MainWindow)
 	{
@@ -542,6 +551,7 @@ CDockManager::~CDockManager()
 	{
 		delete FloatingWidget;
 	}
+
 	delete d;
 }
 
@@ -639,7 +649,6 @@ void CDockManager::removeFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
 	d->FloatingWidgets.removeAll(FloatingWidget);
 }
-
 
 //============================================================================
 void CDockManager::registerDockContainer(CDockContainerWidget* DockContainer)
@@ -849,7 +858,7 @@ CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
 	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget, int Index)
 {
 	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
-	auto Container = DockAreaWidget ? DockAreaWidget->dockContainer(): this;
+	auto Container = DockAreaWidget ? DockAreaWidget->dockContainer() : this;
 	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget, Index);
 	Q_EMIT dockWidgetAdded(Dockwidget);
 	return AreaOfAddedDockWidget;
@@ -863,6 +872,24 @@ CDockAreaWidget* CDockManager::addDockWidgetToContainer(DockWidgetArea area,
 	auto AreaOfAddedDockWidget = DockContainerWidget->addDockWidget(area, Dockwidget);
 	Q_EMIT dockWidgetAdded(Dockwidget);
 	return AreaOfAddedDockWidget;
+}
+
+//============================================================================
+CAutoHideDockContainer* CDockManager::addAutoHideDockWidget(SideBarLocation area, CDockWidget* Dockwidget)
+{
+	return addAutoHideDockWidgetToContainer(area, Dockwidget, this);
+}
+
+//============================================================================
+CAutoHideDockContainer* CDockManager::addAutoHideDockWidgetToContainer(SideBarLocation area, CDockWidget* Dockwidget,
+	CDockContainerWidget* DockContainerWidget)
+{
+	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
+	auto container = DockContainerWidget->createAndSetupAutoHideContainer(area, Dockwidget);
+	container->collapseView(true);
+
+	Q_EMIT dockWidgetAdded(Dockwidget);
+	return container;
 }
 
 
@@ -1050,6 +1077,7 @@ CDockAreaWidget* CDockManager::setCentralWidget(CDockWidget* widget)
 	widget->setFeature(CDockWidget::DockWidgetClosable, false);
 	widget->setFeature(CDockWidget::DockWidgetMovable, false);
 	widget->setFeature(CDockWidget::DockWidgetFloatable, false);
+	widget->setFeature(CDockWidget::DockWidgetPinnable, false);
 	d->CentralWidget = widget;
 	CDockAreaWidget* CentralArea = addDockWidget(CenterDockWidgetArea, widget);
 	CentralArea->setDockAreaFlag(CDockAreaWidget::eDockAreaFlag::HideSingleWidgetTitleBar, true);
@@ -1125,6 +1153,11 @@ CDockManager::ConfigFlags CDockManager::configFlags()
 	return StaticConfigFlags;
 }
 
+CDockManager::AutoHideFlags CDockManager::autoHideConfigFlags()
+{
+	return StaticAutoHideConfigFlags;
+}
+
 
 //===========================================================================
 void CDockManager::setConfigFlags(const ConfigFlags Flags)
@@ -1134,15 +1167,36 @@ void CDockManager::setConfigFlags(const ConfigFlags Flags)
 
 
 //===========================================================================
+void CDockManager::setAutoHideConfigFlags(const AutoHideFlags Flags)
+{
+	StaticAutoHideConfigFlags = Flags;
+}
+
+
+//===========================================================================
 void CDockManager::setConfigFlag(eConfigFlag Flag, bool On)
 {
 	internal::setFlag(StaticConfigFlags, Flag, On);
+}
+
+
+//===========================================================================
+void CDockManager::setAutoHideConfigFlag(eAutoHideFlag Flag, bool On)
+{
+	internal::setFlag(StaticAutoHideConfigFlags, Flag, On);
 }
 
 //===========================================================================
 bool CDockManager::testConfigFlag(eConfigFlag Flag)
 {
     return configFlags().testFlag(Flag);
+}
+
+
+//===========================================================================
+bool CDockManager::testAutoHideConfigFlag(eAutoHideFlag Flag)
+{
+	return autoHideConfigFlags().testFlag(Flag);
 }
 
 
@@ -1269,6 +1323,7 @@ void CDockManager::setFloatingContainersTitle(const QString& Title)
 {
 	FloatingContainersTitle = Title;
 }
+
 
 //===========================================================================
 QString CDockManager::floatingContainersTitle()

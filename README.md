@@ -4,15 +4,17 @@
 
 ------------------
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System?color=%23ff9833)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
+[![GitHub contributors](https://img.shields.io/github/contributors/githubuser0xFFFF/Qt-Advanced-Docking-System?color=ffdf00)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/graphs/contributors)
 
 Qt Advanced Docking System lets you create customizable layouts using a full
 featured window docking system similar to what is found in many popular
 integrated development environments (IDEs) such as Visual Studio.
 
-- [What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+- [What's new...](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 - [Documentation](doc/user-guide.md)
 - Original Repository: https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System
 
@@ -20,7 +22,14 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
-The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+The [release 4.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+adds the following features:
+
+- Auto-Hide functionality ([read more...](#auto-hide-functionality))
+- improved demo application with new image viewer dock widgets
+- Visual Studio like CSS theme in demo application
+
+The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/3.8.3)
 adds the following features:
 
 - option to close tabs with the middle mouse button
@@ -73,6 +82,7 @@ know it from Visual Studio.
   - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
   - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
   - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
+  - [Auto-Hide Functionality](#auto-hide-functionality)
 - [Python Bindings](#python-bindings)
   - [PySide6](#pyside6)
   - [PyQt5](#pyqt5)
@@ -181,6 +191,35 @@ You can detach dock widgets and also dock areas in the following ways:
 ### Supports deletion of dynamically created dock widgets
 
 Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the toggleView() action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
+
+### Auto-Hide Functionality
+
+The 4.0 release of ADS added the new **Auto-Hide** feature. Thanks to the
+[initial contribution](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/452) by [Ahmad Syarifuddin](https://github.com/SyarifFakhri) it was
+possible to close this long standing [feature request](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/147). The "Auto Hide" feature
+allows to display more information using less screen space by hiding or showing
+windows pinned to one of the four dock container borders.
+
+![Auto-Hide Movie](doc/AutoHide_Movie.gif)
+
+The Advanced Docking
+System supports "Auto-Hide" functionality for **all** dock containers - that means,
+for the main window and for each floating widget. Here is short list of all
+auto hide features:
+
+- supported for the main window and all floating dock containers
+- supports showing and hiding via mouse click or mouse hover
+- respects opaque / non opaque splitter resizing flag
+- context menu for pinning a dock widget or a complete dock area to a certain border
+- configuration option to configure if the pin button should pin the current
+  dock widget tab or a complete dock area
+- click the pin button holding the Ctrl key to pin a complete dock area
+- fully CSS styleable
+- backward compatible state file format - is is possible to load older dock manager
+  state files without auto hide support and older versions can load the new state
+  files with Auto-Hide state information
+
+More about the auto hide configuration options in the [online documentation...](doc/user-guide.md#auto-hide-configuration-flags)
 
 ## Python Bindings
 

@@ -28,6 +28,18 @@
   - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
   - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
   - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
+- [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
+  - [Auto Hide Dock Widgets](#auto-hide-dock-widgets)
+  - [Pinning Auto-Hide Widgets to a certain border](#pinning-auto-hide-widgets-to-a-certain-border)
+  - [Show / Hide Auto-Hide Widgets via Mouse Over](#show--hide-auto-hide-widgets-via-mouse-over)
+  - [Adding Auto Hide Widgets](#adding-auto-hide-widgets)
+  - [Setting Auto-Hide Flags](#setting-auto-hide-flags)
+  - [`AutoHideFeatureEnabled`](#autohidefeatureenabled)
+  - [`DockAreaHasAutoHideButton`](#dockareahasautohidebutton)
+  - [`AutoHideButtonTogglesArea`](#autohidebuttontogglesarea)
+  - [`AutoHideButtonCheckable`](#autohidebuttoncheckable)
+  - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
+  - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -485,6 +497,129 @@ close tab. Just click with the middle mouse button on a tab like this is
 possible in various web browsers.
 
 ![MiddleMouseButtonClosesTab true](cfg_flag_MiddleMouseButtonClosesTab.gif)
+
+## Auto-Hide Configuration Flags
+
+### Auto Hide Dock Widgets
+
+The Advanced Docking System supports "Auto-Hide" functionality for **all**
+dock containers. The "Auto Hide" feature allows to display more information
+using less screen space by hiding or showing windows pinned to one of the 
+four dock container borders.
+
+Enabling this feature adds a button with a pin icon to each dock area.
+
+![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
+
+By clicking this button, the current dock widget (or the complete area - depending on the
+configuration flags) will be pinned to a certain border. The border is choosen
+depending on the location of the dock area. If you click the pin button while
+holding down the **Ctrl** key, the whole dock area will be pinned to a certain
+border.
+
+### Pinning Auto-Hide Widgets to a certain border
+
+If you would like to pin a dock widget or a dock area to a certain border,
+then you can right-click into the dock widget tab or into the dock area title bar
+to show the context menu. Then you can select the location via the **Pin to** menu:
+
+![Pin to](AutoHide_PinTo.png)
+
+### Show / Hide Auto-Hide Widgets via Mouse Over
+
+Normally Auto-Hide widgets are shown by clicking the Auto-Hide tab and hidden by
+clicking the Auto-Hide tab again or by clicking into any other dock widget in
+the same container. If the Auto-Hide config flag `AutoHideShowOnMouseOver` is set,
+the Auto-Hide widget is shown, if the user hovers over the Auto-Hide tab and is
+collapsed if the mouse cursor leaves the Auto-Hide widget. Showing and hiding
+by mouse click still works if this feature is enabled.
+
+### Adding Auto Hide Widgets
+
+Adding an auto hide widget is similar to adding a dock widget, simply call
+`dockManager->addAutoHideDockWidget()`.
+
+```c++
+CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+d->DockManager = new CDockManager(this);
+CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+DockManager->addAutoHideDockWidget(SideBarLeft, TableDockWidget);
+```
+
+See `autohide` example or the demo application to learn how it works.
+
+### Setting Auto-Hide Flags
+
+The Advanced Docking System has a number of global configuration flags to
+configure the Auto-Hide functionality. You should set the Auto-Hide flags before
+creating the dock manager instance. That means, you should set the Auto-Hide
+flags after setting the configuration flags.
+
+```c++
+CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideShowOnMouseOver, true);
+...
+d->DockManager = new CDockManager(this);
+```
+
+If you set the Auto-Hide flags, you can set individual flags using the
+function `CDockManager::setAutoHideConfigFlag` or you can set all flags using
+the function `CDockManager::setAutoHideConfigFlags`. Instead of settings all
+flags individually, it is better to pick a predefined set of configuration
+flags and then modify individual flags. The following predefined
+configurations are available
+
+- `DefaultAutoHideConfig` - default auto hide config
+
+Pick one of those predefined configurations and then modify the following
+configurations flags to adjust the docking system to your needs.
+
+### `AutoHideFeatureEnabled`
+
+Enables / disables the Auto-Hide functionality. Only if this flag is enabled,
+the other Auto-Hide flags will be evaluated.
+
+### `DockAreaHasAutoHideButton`
+
+If this flag is set (default), then each dock area has a pin button in the title 
+bar to toggle Auto-Hide state.
+
+![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
+
+### `AutoHideButtonTogglesArea`
+
+If set, the the pin button in the dock area title bar toggles the complete area.
+If not set (default), then the pin button toggles the current active tab / dock
+widget and pressing the **Ctrl** key while clicking the pin button toggles the
+complete ara.
+
+### `AutoHideButtonCheckable`
+
+Normally the pin button in the dock area title bar is not checkable. If this
+flag is set, then the button is checkable. That means, if button is checked,
+the dock widget is pinned.
+
+### `AutoHideSideBarsIconOnly`
+
+Normally the Auto-Hide tabs show the icon and title of the dock widget:
+
+![AutoHideSideBarsIconOnly false](cfg_flag_AutoHideSideBarsIconOnly_false.png)
+
+You can set this flag, if you would like to have only icons in the Auto-Hide
+tabs instead of icon and dock widget title. If this is set, the Auto-Hide tab
+needs less space. The tooltip of each tab still shows the dock widget title.
+
+![AutoHideSideBarsIconOnly true](cfg_flag_AutoHideSideBarsIconOnly_true.png)
+
+### `AutoHideShowOnMouseOver`
+
+Normally Auto-Hide widgets are shown by clicking the Auto-Hide tab and
+hidden by clicking the Auto-Hide tab again or by clicking into any other
+dock widget in the same container. If this flag is set, the Auto-Hide widget
+is shown, if the user hovers over the Auto-Hide tab or if the users moves the
+mouse outside of the Auto-Hide widget. Showing and hiding my mouse click still
+works if this feature is enabled.
 
 ## DockWidget Feature Flags
 

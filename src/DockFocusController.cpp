@@ -8,6 +8,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideTab.h>
 #include "DockFocusController.h"
 
 #include <algorithm>
@@ -185,7 +186,7 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 	}
 #endif
 
-    if (old == DockWidget && !ForceFocusChangedSignal)
+	if (old == DockWidget && !ForceFocusChangedSignal)
     {
     	return;
     }
@@ -312,6 +313,14 @@ void CDockFocusController::setDockWidgetTabFocused(CDockWidgetTab* Tab)
 	{
 		d->updateDockWidgetFocus(DockWidget);
 	}
+}
+
+
+//===========================================================================
+void CDockFocusController::clearDockWidgetFocus(CDockWidget* dockWidget)
+{
+	dockWidget->clearFocus();
+	updateDockWidgetFocusStyle(dockWidget, false);
 }
 
 
