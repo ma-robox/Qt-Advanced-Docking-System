@@ -28,8 +28,8 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <AutoHideDockContainer.h>
-#include <AutoHideTab.h>
+#include "AutoHideDockContainer.h"
+#include "AutoHideTab.h"
 #include "DockAreaWidget.h"
 
 #include <QStackedLayout>
@@ -1302,7 +1302,11 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	switch (borders)
 	{
 	// 1. It's touching all borders
+#if 0	//[ALB]
 	case BorderAll: SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
+#else
+	case BorderAll: SideTab = SideBarLocation::SideBarRight; break;
+#endif
 
 	// 2. It's touching 3 borders
 	case BorderVerticalBottom : SideTab = SideBarLocation::SideBarBottom; break;
@@ -1315,10 +1319,17 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
 
 	// 4. Its in a corner
+#if 0	//[ALB]
 	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
 	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
 	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
 	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
+#else
+	case BorderTopLeft: SideTab = SideBarLocation::SideBarLeft; break;
+	case BorderTopRight: SideTab = SideBarLocation::SideBarRight; break;
+	case BorderBottomLeft: SideTab = SideBarLocation::SideBarLeft; break;
+	case BorderBottomRight: SideTab = SideBarLocation::SideBarRight; break;
+#endif
 
 	// 5 Ists touching only one border
 	case BorderLeft: SideTab = SideBarLocation::SideBarLeft; break;

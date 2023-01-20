@@ -28,9 +28,9 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <AutoHideDockContainer.h>
-#include <AutoHideSideBar.h>
-#include <AutoHideTab.h>
+#include "AutoHideDockContainer.h"
+#include "AutoHideSideBar.h"
+#include "AutoHideTab.h"
 #include "DockWidgetTab.h"
 #include "DockWidget.h"
 
@@ -347,7 +347,11 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 
 	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 	{
+#if 0	// [ALB]
 		setFocusPolicy(Qt::ClickFocus);
+#else
+		setFocusPolicy(Qt::StrongFocus);
+#endif
 	}
 
 #if 1	// [ALB]
@@ -361,7 +365,7 @@ CDockWidget::~CDockWidget()
 {
     ADS_PRINT("~CDockWidget()");
 #if 1	// [ALB]
-	disconnect(d->TabWidget, &CDockWidgetTab::dragStateChanged, this, &CDockWidget::setIsDragging);
+	this->disconnect();
 #endif
 	delete d;
 }

@@ -423,7 +423,7 @@ struct FloatingDockContainerPrivate
         {
             qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
         }
-#if 1
+#if 1	//[ALB]
 		if (!DockContainer)
 			return;
 		for (auto area : DockContainer->openedDockAreas())
