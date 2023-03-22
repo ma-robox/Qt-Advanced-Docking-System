@@ -120,24 +120,28 @@ ads--CDockWidgetTab[modified="true"] QLabel {
 }
 
 /* Focus related styling */
-ads--CDockWidgetTab[focused="true"] {
+ads--CDockWidgetTab[focused="true"][activeTab="true"] {
 	background: palette(highlight);
 	border-color: palette(highlight);
 }
 
-ads--CDockWidgetTab[focused="true"] > #tabCloseButton {
+ads--CDockWidgetTab[focused="true"][activeTab="false"] {
+	border-top: 2px solid palette(highlight);
+}
+
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton {
 	qproperty-icon: url(:/ads/images/close-button-focused.svg);	/* Non @imgPath@ perchè sempre chiara su highlight */
 }
 
-ads--CDockWidgetTab[focused="true"] > #tabCloseButton:hover {
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton:hover {
 	background: rgba(255, 255, 255, 50%);
 }
 
-ads--CDockWidgetTab[focused="true"] > #tabCloseButton:pressed {
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton:pressed {
 	background: rgba(255, 255, 255, 75%);
 }
 
-ads--CDockWidgetTab[focused="true"] QLabel {
+ads--CDockWidgetTab[focused="true"][activeTab="true"] QLabel {
 	color: palette(highlighted-text);
 }
 

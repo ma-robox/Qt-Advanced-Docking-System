@@ -8,7 +8,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <AutoHideTab.h>
+#include "AutoHideTab.h"
 #include "DockFocusController.h"
 
 #include <algorithm>
