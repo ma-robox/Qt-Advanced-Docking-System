@@ -207,7 +207,14 @@ void DockAreaTitleBarPrivate::createButtons()
 
 	// AutoHide Button
 	const auto autoHideEnabled = testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled);
+#if 0
 	AutoHideButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton) && autoHideEnabled);
+#else
+	bool customCondition = testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton);
+	if (DockArea->dockContainer())
+		customCondition |= DockArea->dockContainer()->property("RoboxAutoHideTabWithPinButton").toBool();
+	AutoHideButton = new CTitleBarButton(customCondition && autoHideEnabled);
+#endif
 	AutoHideButton->setObjectName("dockAreaAutoHideButton");
 	AutoHideButton->setAutoRaise(true);
 	internal::setToolTip(AutoHideButton, _this->titleBarButtonToolTip(TitleBarButtonAutoHide));

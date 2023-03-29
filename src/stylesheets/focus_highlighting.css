@@ -100,22 +100,33 @@ ads--CDockWidgetTab[modified="true"] QLabel {
 	color: @modifiedTabColor@;
 }
 
-#tabCloseButton {
+#tabCloseButton,
+#tabAutoHideButton {
 	margin-top: 2px;
 	background: none;
 	border: 1px solid rgba(0, 0, 0, 0%);
 	padding: 0px -2px;
+}
+
+#tabCloseButton{
 	qproperty-icon: url(:/ads/@imgPath@/close-button.svg),
 		url(:/ads/@imgPath@/close-button-disabled.svg) disabled;
 	qproperty-iconSize: 16px;
 }
 
-#tabCloseButton:hover {
+#tabAutoHideButton{
+	qproperty-icon: url(:/ads/@imgPath@/vs-pin-button.svg);
+	qproperty-iconSize: 16px;
+}
+
+#tabCloseButton:hover, 
+#tabAutoHideButton:hover {
 	border-color: rgba(0, 0, 0, 32%);
 	background: rgba(0, 0, 0, 16%);
 }
 
-#tabCloseButton:pressed {
+#tabCloseButton:pressed,
+#tabAutoHideButton:pressed {
 	background: rgba(0, 0, 0, 32%);
 }
 
@@ -133,11 +144,17 @@ ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton {
 	qproperty-icon: url(:/ads/images/close-button-focused.svg);	/* Non @imgPath@ perchè sempre chiara su highlight */
 }
 
-ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton:hover {
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabAutoHideButton {
+	qproperty-icon: url(:/ads/images/vs-pin-button-focused.svg);	/* Non @imgPath@ perché sempre chiara su highlight */
+}
+
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton:hover,
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabAutoHideButton:hover {
 	background: rgba(255, 255, 255, 50%);
 }
 
-ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton:pressed {
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton:pressed,
+ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabAutoHideButton:pressed {
 	background: rgba(255, 255, 255, 75%);
 }
 

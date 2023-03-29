@@ -20,6 +20,7 @@
         <file alias="vs-pin-button-pinned-focused.svg">images/vs-pin-button-pinned-focused.svg</file>
         <file alias="vs-pin-button-pinned.svg">images/vs-pin-button-pinned.svg</file>
         <file alias="vs-pin-button.svg">images/vs-pin-button.svg</file>
+        <file alias="vs-pin-button-focused.svg">images/vs-pin-button-focused.svg</file>
     </qresource>
     <qresource prefix="/ads/images/dark">
         <file alias="close-button.svg">images/dark/close-button.svg</file>

@@ -76,6 +76,9 @@ struct DockWidgetTabPrivate
 	IFloatingWidget* FloatingWidget = nullptr;
 	QIcon Icon;
 	QAbstractButton* CloseButton = nullptr;
+#if 1
+	QAbstractButton* AutoHideButton = nullptr;
+#endif
 	QSpacerItem* IconTextSpacer;
 	QPoint TabDragStartPosition;
 	QSize IconSize;
@@ -160,6 +163,53 @@ struct DockWidgetTabPrivate
 			&& testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
 		CloseButton->setSizePolicy(SizePolicy);
 	}
+
+#if 1	// NOTE: tengo le stesse regole del close button
+	/**
+	 * Creates the auto hide button as QPushButton or as QToolButton
+	 */
+	QAbstractButton *createAutoHideButton() const
+	{
+		if (testConfigFlag(CDockManager::TabCloseButtonIsToolButton))
+		{
+			auto Button = new QToolButton();
+			Button->setAutoRaise(true);
+			return Button;
+		}
+		else
+		{
+			return new QPushButton();
+		}
+	}
+
+	/**
+	 * Update the close button visibility from current feature/config
+	 */
+	void updateAutoHideButtonVisibility(bool active)
+	{
+		
+		bool DockWidgetClosable = DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
+		bool ActiveTabHasAutoHideButton = testConfigFlag(CDockManager::ActiveTabHasCloseButton);
+		bool AllTabsHaveAutoHideButton = testConfigFlag(CDockManager::AllTabsHaveCloseButton);
+		bool TabHasAutoHideButton = (ActiveTabHasAutoHideButton && active) || AllTabsHaveAutoHideButton;
+		AutoHideButton->setVisible(DockWidgetClosable && TabHasAutoHideButton);
+	}
+
+	/**
+	 * Update the size policy of the close button depending on the
+	 * RetainTabSizeWhenCloseButtonHidden feature
+	 */
+	void updateAutoHideButtonSizePolicy()
+	{
+		auto Features = DockWidget->features();
+		auto SizePolicy = AutoHideButton->sizePolicy();
+		SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
+			&& testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
+		AutoHideButton->setSizePolicy(SizePolicy);
+	}
+#endif
+
+	
 
 	template <typename T>
 	IFloatingWidget* createFloatingWidget(T* Widget, bool CreateContainer)
@@ -264,11 +314,22 @@ void DockWidgetTabPrivate::createLayout()
 	CloseButton = createCloseButton();
 	CloseButton->setObjectName("tabCloseButton");
 	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, TabCloseIcon);
-    CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    CloseButton->setFocusPolicy(Qt::NoFocus);
-    updateCloseButtonSizePolicy();
+	CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	CloseButton->setFocusPolicy(Qt::NoFocus);
+	updateCloseButtonSizePolicy();
 	internal::setToolTip(CloseButton, QObject::tr("Close Tab"));
 	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
+
+#if 1
+	AutoHideButton = createAutoHideButton();
+	AutoHideButton->setObjectName("tabAutoHideButton");
+	internal::setButtonIcon(AutoHideButton, QStyle::SP_TitleBarNormalButton, AutoHideIcon);
+	AutoHideButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	AutoHideButton->setFocusPolicy(Qt::NoFocus);
+	updateAutoHideButtonSizePolicy();
+	internal::setToolTip(AutoHideButton, QObject::tr("Hide Tab"));
+	_this->connect(AutoHideButton, SIGNAL(clicked()), SLOT(autoHideDockWidget()));
+#endif
 
 	QFontMetrics fm(TitleLabel->font());
 	int Spacing = qRound(fm.height() / 4.0);
@@ -279,6 +340,10 @@ void DockWidgetTabPrivate::createLayout()
 	Layout->setSpacing(0);
 	_this->setLayout(Layout);
 	Layout->addWidget(TitleLabel, 1);
+#if 1
+	Layout->addSpacing(Spacing);
+	Layout->addWidget(AutoHideButton);
+#endif
 	Layout->addSpacing(Spacing);
 	Layout->addWidget(CloseButton);
 	Layout->addSpacing(qRound(Spacing * 4.0 / 3.0));
@@ -601,6 +666,9 @@ bool CDockWidgetTab::isActiveTab() const
 void CDockWidgetTab::setActiveTab(bool active)
 {
     d->updateCloseButtonVisibility(active);
+#if 1
+	d->updateAutoHideButtonVisibility(active);
+#endif
 
 	// Focus related stuff
 	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting) && !d->DockWidget->dockManager()->isRestoringState())
@@ -808,8 +876,12 @@ bool CDockWidgetTab::event(QEvent *e)
 //============================================================================
 void CDockWidgetTab::onDockWidgetFeaturesChanged()
 {
-    d->updateCloseButtonSizePolicy();
-    d->updateCloseButtonVisibility(isActiveTab());
+	d->updateCloseButtonSizePolicy();
+	d->updateCloseButtonVisibility(isActiveTab());
+#if 1
+	d->updateAutoHideButtonSizePolicy();
+	d->updateAutoHideButtonVisibility(isActiveTab());
+#endif
 }
 
 
