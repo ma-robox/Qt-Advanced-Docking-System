@@ -32,6 +32,10 @@
 #include <QScrollArea>
 #include "ads_globals.h"
 
+#if 1	// [#2920]
+class QResizeEvent;
+#endif
+
 namespace ads
 {
 class CDockAreaWidget;
@@ -213,6 +217,10 @@ Q_SIGNALS:
 protected slots:
 	/*! Slot per forzare visualizzazione tab aggiunto [#2431] */
 	void ensureCurrentTabVisible();
+
+protected:
+	/*! Reimplementazione metodo */
+	void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 #endif	// 1
 }; // class CDockAreaTabBar
 } // namespace ads

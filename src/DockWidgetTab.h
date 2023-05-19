@@ -200,7 +200,7 @@ public:
 	/*! Reload UI for theme change */
 	void initUi(bool isDarkTheme);
 
-	/*! Funzioni per propriet‡ */
+	/*! Funzioni per propriet√† */
 	bool isDarkTheme()					{ return m_isDarkTheme; }
 	void setDarkTheme(bool isDarkTheme)	{ m_isDarkTheme = isDarkTheme; }
 	bool isHovering()					{ return m_isHovering; }

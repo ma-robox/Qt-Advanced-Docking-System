@@ -36,8 +36,8 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QtGlobal>
-#if 1	// [#2431]
-#include <QTimer>
+#if 1	// [#2920]
+#include <QResizeEvent>
 #endif
 
 #include "FloatingDockContainer.h"
@@ -222,7 +222,7 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	updateGeometry();
 
 #if 1	// [#2431]
-	QTimer::singleShot(50, this, &CDockAreaTabBar::ensureCurrentTabVisible);
+	QMetaObject::invokeMethod(this, "ensureCurrentTabVisible", Qt::QueuedConnection);
 #endif
 }
 
@@ -525,6 +525,13 @@ void CDockAreaTabBar::ensureCurrentTabVisible()
 	if (!tab)
 		return;
 	ensureWidgetVisible(tab);
+}
+
+//===========================================================================
+void CDockAreaTabBar::resizeEvent(QResizeEvent *event)
+{
+	QMetaObject::invokeMethod(this, "ensureCurrentTabVisible", Qt::QueuedConnection);
+	QScrollArea::resizeEvent(event);
 }
 #endif	// 1
 } // namespace ads

@@ -20,7 +20,7 @@ ads--CDockContainerWidget > QSplitter {
 ads--CDockSplitter::handle {
 	background-color: palette(dark);
 	/* uncomment the following line if you would like to change the size of
-       the splitter handles */
+	   the splitter handles */
 	/* height: 1px; */
 }
 
@@ -79,11 +79,16 @@ ads--CDockWidgetTab[darkTheme="true"] {
 	border-color: palette(light);
 }
 
-ads--CDockWidgetTab[activeTab="true"] {
+ads--CDockWidgetTab[activeTab="true"][darkTheme="false"]{
+	background: palette(light);
+}
+
+ads--CDockWidgetTab[activeTab="true"][darkTheme="true"]{
 	background: palette(mid);
 }
 
-ads--CDockWidgetTab[hovering="true"][focused="false"][activeTab="false"]{
+ads--CDockWidgetTab[hovering="true"][focused="false"][activeTab="false"],
+ads--CDockWidgetTab[hovering="true"][focused="false"][activeTab="true"]{
 	background: @inactiveTabHoverColor@;
 	border: 1px solid @inactiveTabHoverBorderColor@;
 }
@@ -138,6 +143,14 @@ ads--CDockWidgetTab[focused="true"][activeTab="true"] {
 
 ads--CDockWidgetTab[focused="true"][activeTab="false"] {
 	border-top: 2px solid palette(highlight);
+}
+
+ads--CDockWidgetTab[focused="false"][activeTab="true"][darkTheme="true"]{
+	border-top: 2px solid palette(light);
+}
+
+ads--CDockWidgetTab[focused="false"][activeTab="true"][darkTheme="false"]{
+	border-top: 2px solid palette(dark);
 }
 
 ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton {
