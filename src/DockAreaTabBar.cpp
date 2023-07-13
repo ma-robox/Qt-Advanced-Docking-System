@@ -523,7 +523,50 @@ QSize CDockAreaTabBar::sizeHint() const
 }
 
 
+//===========================================================================
+int CDockAreaTabBar::tabAt(const QPoint& Pos) const
+{
+	if (!isVisible())
+	{
+		return TabInvalidIndex;
+	}
+
+	if (Pos.x() < tab(0)->geometry().x())
+	{
+		return -1;
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		if (tab(i)->geometry().contains(Pos))
+		{
+			return i;
+		}
+	}
+
+	return count();
+}
+
+
+//===========================================================================
+int CDockAreaTabBar::tabInsertIndexAt(const QPoint& Pos) const
+{
+	int Index = tabAt(Pos);
+	if (Index == TabInvalidIndex)
+	{
+		return TabDefaultInsertIndex;
+	}
+	else
+	{
+		return (Index < 0) ? 0 : Index;
+	}
+}
+} // namespace ads
+
+
 #if 1	// [ALB]
+namespace ads
+{
 //===========================================================================
 void CDockAreaTabBar::ensureCurrentTabVisible()
 {
@@ -539,8 +582,8 @@ void CDockAreaTabBar::resizeEvent(QResizeEvent *event)
 	QMetaObject::invokeMethod(this, "ensureCurrentTabVisible", Qt::QueuedConnection);
 	QScrollArea::resizeEvent(event);
 }
-#endif	// 1
 } // namespace ads
+#endif	// 1
 
 
 //---------------------------------------------------------------------------

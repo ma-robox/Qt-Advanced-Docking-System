@@ -14,6 +14,7 @@
         <file alias="maximize-button-focused.svg">images/maximize-button-focused.svg</file>
         <file alias="maximize-button.svg">images/maximize-button.svg</file>
         <file alias="pin-button.svg">images/pin-button.svg</file>
+        <file alias="pin-button-big.svg">images/pin-button-big.svg</file>
         <file alias="restore-button-focused.svg">images/restore-button-focused.svg</file>
         <file alias="restore-button.svg">images/restore-button.svg</file>
         <file alias="tabs-menu-button.svg">images/tabs-menu-button.svg</file>
@@ -21,14 +22,17 @@
         <file alias="vs-pin-button-pinned.svg">images/vs-pin-button-pinned.svg</file>
         <file alias="vs-pin-button.svg">images/vs-pin-button.svg</file>
         <file alias="vs-pin-button-focused.svg">images/vs-pin-button-focused.svg</file>
+        <file alias="vs-pin-button_45.svg">images/vs-pin-button_45.svg</file>
     </qresource>
     <qresource prefix="/ads/images/dark">
         <file alias="close-button.svg">images/dark/close-button.svg</file>
         <file alias="close-button-disabled.svg">images/dark/close-button-disabled.svg</file>
         <file alias="detach-button.svg">images/dark/detach-button.svg</file>
         <file alias="detach-button-disabled.svg">images/dark/detach-button-disabled.svg</file>
+        <file alias="pin-button.svg">images/dark/pin-button.svg</file>
+        <file alias="pin-button-big.svg">images/dark/pin-button-big.svg</file>
         <file alias="vs-pin-button.svg">images/dark/vs-pin-button.svg</file>
         <file alias="vs-pin-button-pinned.svg">images/dark/vs-pin-button-pinned.svg</file>
-        <file alias="vs-pin-button-pinned-focused.svg">images/dark/vs-pin-button-pinned-focused.svg</file>
+        <file alias="vs-pin-button_45.svg">images/dark/vs-pin-button_45.svg</file>
     </qresource>
 </RCC>
