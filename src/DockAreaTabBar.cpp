@@ -307,8 +307,7 @@ int CDockAreaTabBar::currentIndex() const
 //===========================================================================
 CDockWidgetTab* CDockAreaTabBar::currentTab() const
 {
-#if 0
-	if (d->CurrentIndex < 0)
+	if (d->CurrentIndex < 0 || d->CurrentIndex >= d->TabsLayout->count())
 	{
 		return nullptr;
 	}
@@ -316,12 +315,6 @@ CDockWidgetTab* CDockAreaTabBar::currentTab() const
 	{
 		return qobject_cast<CDockWidgetTab*>(d->TabsLayout->itemAt(d->CurrentIndex)->widget());
 	}
-#else
-	if ((d->CurrentIndex >= 0) &&
-		(d->TabsLayout->itemAt(d->CurrentIndex) != nullptr))
-		return qobject_cast<CDockWidgetTab *>(d->TabsLayout->itemAt(d->CurrentIndex)->widget());
-	return nullptr;
-#endif
 }
 
 

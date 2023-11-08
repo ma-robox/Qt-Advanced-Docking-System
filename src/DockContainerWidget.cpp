@@ -250,7 +250,7 @@ public:
 	 * \param[out] CreatedWidget The widget created from parsed data or 0 if
 	 * the parsed widget was an empty splitter
 	 * \param[in] Testing If Testing is true, only the stream data is
-	 * parsed without modifiying anything.
+	 * parsed without modifying anything.
 	 */
 	bool restoreChildNodes(CDockingStateReader& Stream, QWidget*& CreatedWidget,
 		bool Testing);
@@ -1932,10 +1932,11 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 		NewRootSplitter = d->newSplitter(Qt::Horizontal);
 	}
 
-	d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
+	QLayoutItem* li = d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
 	auto OldRoot = d->RootSplitter;
 	d->RootSplitter = qobject_cast<CDockSplitter*>(NewRootSplitter);
 	OldRoot->deleteLater();
+	delete li;
 
 	return true;
 }

@@ -65,7 +65,7 @@ namespace ads
 #ifdef Q_OS_WIN
 #if 0 // set to 1 if you need this function for debugging
 /**
- * Just for debuging to convert windows message identifiers to strings
+ * Just for debugging to convert windows message identifiers to strings
  */
 static const char* windowsMessageString(int MessageId)
 {
@@ -682,7 +682,6 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 	QDockWidget::setWidget(d->DockContainer);
-	QDockWidget::setFloating(true);
 	QDockWidget::setFeatures(QDockWidget::DockWidgetClosable
 		| QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 

@@ -300,11 +300,18 @@ DockWidgetTabPrivate::DockWidgetTabPrivate(CDockWidgetTab* _public) :
 void DockWidgetTabPrivate::createLayout()
 {
 	TitleLabel = new tTabLabel();
+	if (CDockManager::testConfigFlag(CDockManager::DisableTabTextEliding))
+	{
+		TitleLabel->setElideMode(Qt::ElideNone);
+	}
+	else
+	{
 #if 0	// [#2314]
-	TitleLabel->setElideMode(Qt::ElideRight);
+		TitleLabel->setElideMode(Qt::ElideRight);
 #else
-	TitleLabel->setElideMode(Qt::ElideLeft);
-#endif 
+		TitleLabel->setElideMode(Qt::ElideLeft);
+#endif
+	}
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
@@ -599,7 +606,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     else if (d->DockArea->openDockWidgetsCount() > 1
      && (internal::globalPositionOf(ev) - d->GlobalDragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
 	{
-    	// If we start dragging the tab, we save its inital position to
+    	// If we start dragging the tab, we save its initial position to
     	// restore it later
     	if (DraggingTab != d->DragState)
     	{

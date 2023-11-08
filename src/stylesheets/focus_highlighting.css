@@ -348,13 +348,20 @@ ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaT
  * CAutoHideDockContainer Titlebar and Buttons
  *****************************************************************************/
 #dockAreaAutoHideButton {
-	qproperty-icon: url(:/ads/@imgPath@/vs-pin-button.svg);
+	qproperty-icon: url(:/ads/@imgPath@/vs-pin-button.svg),
+		url(:/ads/images/vs-pin-button-disabled.svg) disabled;	/* Non @imgPath@ perchè colore neutro */
 	qproperty-iconSize: 16px;
 }
 
 ads--CAutoHideDockContainer #dockAreaAutoHideButton {
 	qproperty-icon: url(:/ads/images/vs-pin-button-pinned-focused.svg);	/* Non @imgPath@ perchè sempre chiara su highlight */
 	qproperty-iconSize: 16px;
+}
+
+
+ads--CAutoHideDockContainer #dockAreaMinimizeButton {
+	qproperty-icon: url(:/ads/images/minimize-button-focused.svg);	/* Non @imgPath@ perchè sempre chiara su highlight */
+	qproperty-iconSize: 16px;	
 }
 
 ads--CAutoHideDockContainer #dockAreaCloseButton{

@@ -317,12 +317,12 @@ struct DockAreaWidgetPrivate
 	}
 
 	/**
-	 * Udpates the enable state of the close and detach button
+	 * Updates the enable state of the close and detach button
 	 */
 	void updateTitleBarButtonStates();
 
 	/**
-	 * Udpates the enable state of the close and detach button
+	 * Updates the enable state of the close and detach button
 	 */
 	void updateTitleBarButtonVisibility(bool isTopLevel);
 
@@ -390,20 +390,29 @@ void DockAreaWidgetPrivate::updateTitleBarButtonVisibility(bool IsTopLevel)
 		return;
 	}
 
-	if (IsTopLevel)
+	bool IsAutoHide = _this->isAutoHide();
+	if (IsAutoHide)
+	{
+		bool ShowCloseButton = CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideHasCloseButton);
+		TitleBar->button(TitleBarButtonClose)->setVisible(ShowCloseButton);
+		TitleBar->button(TitleBarButtonAutoHide)->setVisible(true);
+		TitleBar->button(TitleBarButtonUndock)->setVisible(false);
+		TitleBar->button(TitleBarButtonTabsMenu)->setVisible(false);
+	}
+	else if (IsTopLevel)
 	{
 		TitleBar->button(TitleBarButtonClose)->setVisible(!container->isFloating());
 		TitleBar->button(TitleBarButtonAutoHide)->setVisible(!container->isFloating());
-        // Undock and tabs should never show when auto hidden
-		TitleBar->button(TitleBarButtonUndock)->setVisible(!container->isFloating() && !_this->isAutoHide());
-        TitleBar->button(TitleBarButtonTabsMenu)->setVisible(!_this->isAutoHide());
+		// Undock and tabs should never show when auto hidden
+		TitleBar->button(TitleBarButtonUndock)->setVisible(!container->isFloating());
+		TitleBar->button(TitleBarButtonTabsMenu)->setVisible(true);
 	}
 	else
 	{
 		TitleBar->button(TitleBarButtonClose)->setVisible(true);
 		TitleBar->button(TitleBarButtonAutoHide)->setVisible(true);
-		TitleBar->button(TitleBarButtonUndock)->setVisible(!_this->isAutoHide());
-        TitleBar->button(TitleBarButtonTabsMenu)->setVisible(!_this->isAutoHide());
+		TitleBar->button(TitleBarButtonUndock)->setVisible(true);
+		TitleBar->button(TitleBarButtonTabsMenu)->setVisible(true);
 	}
 }
 
@@ -851,26 +860,24 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		return;
 	}
 
-    if (!d->TitleBar)
-    {
-    	return;
-    }
+	if (!d->TitleBar)
+	{
+		return;
+	}
 
-    bool IsAutoHide = isAutoHide();
-    if (!CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
-    {
+	bool IsAutoHide = isAutoHide();
+	if (!CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
+	{
 		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
 			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
 		Hidden |= (d->Flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
 		Hidden &= !IsAutoHide; // Titlebar must always be visible when auto hidden so it can be dragged
 		d->TitleBar->setVisible(!Hidden);
-    }
+	}
 
 	if (isAutoHideFeatureEnabled())
 	{
-		auto tabBar = d->TitleBar->tabBar();
-		tabBar->setVisible(!IsAutoHide);  // Never show tab bar when auto hidden
-		d->TitleBar->autoHideTitleLabel()->setVisible(IsAutoHide);  // Always show when auto hidden, never otherwise
+		d->TitleBar->showAutoHideControls(IsAutoHide);
 		updateTitleBarButtonVisibility(Container->topLevelDockArea() == this);
 	}
 }
@@ -1308,11 +1315,11 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	case BorderHorizontalLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderHorizontalRight: SideTab = SideBarLocation::SideBarRight; break;
 
-	// 3. Its touching horizontal or vertical borders
+	// 3. It's touching horizontal or vertical borders
 	case BorderVertical : SideTab = SideBarLocation::SideBarBottom; break;
 	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
 
-	// 4. Its in a corner
+	// 4. It's in a corner
 #if 0	//[ALB]
 	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
 	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
@@ -1325,7 +1332,7 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	case BorderBottomRight: SideTab = SideBarLocation::SideBarRight; break;
 #endif
 
-	// 5 Ists touching only one border
+	// 5. It's touching only one border
 	case BorderLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderRight: SideTab = SideBarLocation::SideBarRight; break;
 	case BorderTop: SideTab = SideBarLocation::SideBarTop; break;

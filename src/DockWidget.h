@@ -176,6 +176,12 @@ public:
         StateFloating
     };
 
+    enum eToolBarStyleSource
+    {
+    	ToolBarStyleFromDockManager,
+    	ToolBarStyleFromDockWidget
+    };
+
     /**
      * Sets the widget for the dock widget to widget.
      * The InsertMode defines how the widget is inserted into the dock widget.
@@ -246,7 +252,7 @@ public:
      * object name is required by the dock manager to properly save and restore
      * the state of the dock widget. That means, the title needs to be unique.
      * If your title is not unique or if you would like to change the title
-     * during runtime, you need to set a unique object name explicitely
+     * during runtime, you need to set a unique object name explicitly
      * by calling setObjectName() after construction.
      * Use the layoutFlags to configure the layout of the dock widget.
      */
@@ -410,6 +416,12 @@ public:
     QAction* toggleViewAction() const;
 
     /**
+     * Use provided action to be the default toggle view action for this dock widget.
+     * This dock widget now owns the action.
+     */
+    void setToggleViewAction(QAction* action);
+
+    /**
      * Configures the behavior of the toggle view action.
      * \see eToggleViewActionMode for a detailed description
      */
@@ -445,7 +457,7 @@ public:
 
     /**
      * This function returns the dock widget top tool bar.
-     * If no toolbar is assigned, this function returns nullptr. To get a vaild
+     * If no toolbar is assigned, this function returns nullptr. To get a valid
      * toolbar you either need to create a default empty toolbar via
      * createDefaultToolBar() function or you need to assign your custom
      * toolbar via setToolBar().
@@ -466,6 +478,17 @@ public:
      * on destruction
      */
     void setToolBar(QToolBar* ToolBar);
+
+    /**
+     * Configures, if the dock widget uses the global tool bar styles from
+     * dock manager or if it uses its own tool bar style
+     */
+    void setToolBarStyleSource(eToolBarStyleSource Source);
+
+    /**
+     * Returns the configured tool bar style source
+     */
+    eToolBarStyleSource toolBarStyleSource() const;
 
     /**
      * This function sets the tool button style for the given dock widget state.
