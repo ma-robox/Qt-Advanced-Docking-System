@@ -53,6 +53,7 @@ struct FloatingDragPreviewPrivate;
 class CDockingStateReader;
 class CAutoHideSideBar;
 class CAutoHideTab;
+class CDockSplitter;
 struct AutoHideTabPrivate;
 struct AutoHideDockContainerPrivate;
 
@@ -94,7 +95,7 @@ protected:
 	/**
 	 * Access function for the internal root splitter
 	 */
-	QSplitter* rootSplitter() const;
+	CDockSplitter* rootSplitter() const;
 
 	/**
 	 * Creates and initializes a dockwidget auto hide container into the given area.
@@ -374,11 +375,6 @@ Q_SIGNALS:
 	 */
 	void dockAreaViewToggled(ads::CDockAreaWidget* DockArea, bool Open);
 
-#ifdef ADS_ROBOX_CHANGES
-public:
-	/*! Helper impostazione programmatica dimensione aree */
-	QSplitter * mainSplitter() const { return rootSplitter(); }
-#endif
 }; // class DockContainerWidget
 } // namespace ads
 //-----------------------------------------------------------------------------

@@ -267,7 +267,7 @@ T findParent(const QWidget* w)
 		}
 		parentWidget = parentWidget->parentWidget();
 	}
-	return 0;
+	return nullptr;
 }
 
 /**
