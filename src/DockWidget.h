@@ -695,7 +695,7 @@ Q_SIGNALS:
      */
     void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 public:
     /*! Cambio stato di trascinamento del dockWidget */
     void setIsDragging(bool dragging);

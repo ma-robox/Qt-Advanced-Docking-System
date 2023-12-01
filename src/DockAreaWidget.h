@@ -445,7 +445,7 @@ Q_SIGNALS:
 	 */
 	void viewToggled(bool Open);
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 public:
 	/*! Helper selezione widget successivo */
 	CDockWidget* nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false);
@@ -464,7 +464,7 @@ public:
 
 protected:
 	CDockWidget *m_CentralDockWidget;
-#endif	// 1
+#endif
 }; // class DockAreaWidget
 } // namespace ads
 

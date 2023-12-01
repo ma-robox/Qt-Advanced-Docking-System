@@ -49,6 +49,8 @@
 #include <QWindow>
 #include <QWindowStateChangeEvent>
 
+#include "tool/appinfo.h"
+
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
 #include "DockWidget.h"
@@ -196,7 +198,9 @@ DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 void DockManagerPrivate::loadStylesheet()
 {
 	initResource();
-#if 0
+#ifdef ADS_ROBOX_CHANGES
+	return;
+#else
 	QString Result;
 	QString FileName = ":ads/stylesheets/";
 	FileName += CDockManager::testConfigFlag(CDockManager::FocusHighlighting)
@@ -211,7 +215,7 @@ void DockManagerPrivate::loadStylesheet()
 	Result = StyleSheetStream.readAll();
 	StyleSheetFile.close();
 	_this->setStyleSheet(Result);
-#endif	// 0
+#endif
 }
 
 
@@ -1120,9 +1124,9 @@ CDockAreaWidget* CDockManager::setCentralWidget(CDockWidget* widget)
 	CDockAreaWidget* CentralArea = addDockWidget(CenterDockWidgetArea, widget);
 	CentralArea->setDockAreaFlag(CDockAreaWidget::eDockAreaFlag::HideSingleWidgetTitleBar, true);
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	CentralArea->setCentralDockWidget(widget);
-#endif	// 1
+#endif
 	return CentralArea;
 }
 
@@ -1366,9 +1370,10 @@ void CDockManager::setFloatingContainersTitle(const QString& Title)
 //===========================================================================
 QString CDockManager::floatingContainersTitle()
 {
+#ifndef ADS_ROBOX_CHANGES
 	if (FloatingContainersTitle.isEmpty())
 		return qApp->applicationDisplayName();
-
+#endif
 	return FloatingContainersTitle;
 }
 
@@ -1427,7 +1432,7 @@ QSize CDockManager::dockWidgetToolBarIconSize(CDockWidget::eState State) const
 	}
 }
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 //============================================================================
 void CDockManager::updateDockWidgetName(CDockWidget* Dockwidget)
 {
@@ -1571,7 +1576,7 @@ QList<CDockContainerWidget *> CDockManager::openedDockContainers() const
 	}
 	return Result;
 }
-#endif	// 1
+#endif
 } // namespace ads
 
 //---------------------------------------------------------------------------

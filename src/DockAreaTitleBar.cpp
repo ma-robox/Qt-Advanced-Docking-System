@@ -208,13 +208,13 @@ void DockAreaTitleBarPrivate::createButtons()
 
 	// AutoHide Button
 	const auto autoHideEnabled = testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled);
-#if 0
-	AutoHideButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton) && autoHideEnabled);
-#else
+#ifdef ADS_ROBOX_CHANGES
 	bool customCondition = testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton);
 	if (DockArea->dockContainer())
 		customCondition |= DockArea->dockContainer()->property("RoboxAutoHideTabWithPinButton").toBool();
 	AutoHideButton = new CTitleBarButton(customCondition && autoHideEnabled);
+#else
+	AutoHideButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton) && autoHideEnabled);
 #endif
 	AutoHideButton->setObjectName("dockAreaAutoHideButton");
 	AutoHideButton->setAutoRaise(true);
@@ -385,23 +385,7 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 {
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
-#if 0	// [ALB]
-		bool hasElidedTabTitle = false;
-		for (int i = 0; i < d->TabBar->count(); ++i)
-		{
-			if (!d->TabBar->isTabOpen(i))
-			{
-				continue;
-			}
-			CDockWidgetTab* Tab = d->TabBar->tab(i);
-			if(Tab->isTitleElided())
-			{
-				hasElidedTabTitle = true;
-				break;
-			}
-		}
-		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
-#else
+#ifdef ADS_ROBOX_CHANGES
 		bool hasElidedTabTitle = false;
 		bool hasHiddenTab = false;
 		for (int i = 0; i < d->TabBar->count(); ++i)
@@ -423,7 +407,23 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 			}
 		}
 		bool visible = (d->TabBar->count() > 1) && (hasElidedTabTitle || hasHiddenTab);
-#endif	// [ALB]
+#else
+		bool hasElidedTabTitle = false;
+		for (int i = 0; i < d->TabBar->count(); ++i)
+		{
+			if (!d->TabBar->isTabOpen(i))
+			{
+				continue;
+			}
+			CDockWidgetTab* Tab = d->TabBar->tab(i);
+			if(Tab->isTitleElided())
+			{
+				hasElidedTabTitle = true;
+				break;
+			}
+		}
+		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
+#endif
 		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
 	}
 	d->MenuOutdated = true;
@@ -660,19 +660,15 @@ void CDockAreaTitleBar::mouseReleaseEvent(QMouseEvent* ev)
 		auto CurrentDragState = d->DragState;
 		d->DragStartMousePos = QPoint();
 		d->DragState = DraggingInactive;
-#if 0
-		if (DraggingFloatingWidget == CurrentDragState)
-		{
-			d->FloatingWidget->finishDragging();
-		}
-#else	//[ALB]
+
+#ifdef ADS_ROBOX_CHANGES
 		switch (CurrentDragState)
 		{
 		case DraggingFloatingWidget:
 			d->FloatingWidget->finishDragging();
 			break;
 
-		// [ALB] Semplice click sul tab -> focus()
+		// [ROBOX] Semplice click sul tab -> focus()
 		case DraggingMousePressed:
 		case DraggingInactive:
 			if (d->DockArea && d->DockArea->currentDockWidget())
@@ -684,6 +680,11 @@ void CDockAreaTitleBar::mouseReleaseEvent(QMouseEvent* ev)
 				w->setFocus();
 			}
 			break;
+		}
+#else
+		if (DraggingFloatingWidget == CurrentDragState)
+		{
+			d->FloatingWidget->finishDragging();
 		}
 #endif
 		return;
@@ -744,7 +745,9 @@ void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent* ev)
 //============================================================================
 void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
-#if 0	// [ALB] Feature disabilitata
+#ifdef ADS_ROBOX_CHANGES
+	Q_UNUSED(event);
+#else
 	// If this is the last dock area in a dock container it does not make
 	// sense to move it to a new floating widget and leave this one
 	// empty
@@ -759,8 +762,6 @@ void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 	}
 
 	d->makeAreaFloating(event->pos(), DraggingInactive);
-#else
-	Q_UNUSED(event);
 #endif
 }
 

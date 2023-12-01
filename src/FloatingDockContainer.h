@@ -42,7 +42,7 @@
 #endif
 
 class CDockingStateReader;
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 class QMenuBar;
 #endif
 
@@ -175,12 +175,12 @@ protected:
 	/**
 	 * Call this function to update the window title
 	 */
-#if 0
-    void updateWindowTitle();
-#else
+#ifdef ADS_ROBOX_CHANGES
 public:
-	void updateWindowTitle();
+    void updateWindowTitle();
 protected:
+#else
+	void updateWindowTitle();
 #endif
 
 protected: // reimplements QWidget
@@ -307,7 +307,7 @@ public:
 	 */
 	bool hasNativeTitleBar();
 #endif
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 public:
 	/*! Ptr a toolbar */
 	QMenuBar *menuBar() const {return m_menuBar; }

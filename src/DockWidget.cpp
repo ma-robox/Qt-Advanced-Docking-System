@@ -375,14 +375,14 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 
 	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 	{
-#if 0	// [ALB]
-		setFocusPolicy(Qt::ClickFocus);
-#else
+#ifdef ADS_ROBOX_CHANGES
 		setFocusPolicy(Qt::StrongFocus);
+#else
+		setFocusPolicy(Qt::ClickFocus);
 #endif
 	}
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	connect(d->TabWidget, &CDockWidgetTab::dragStateChanged, this, &CDockWidget::setIsDragging);
 	m_dragState = false;
 #endif
@@ -392,7 +392,7 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 CDockWidget::~CDockWidget()
 {
     ADS_PRINT("~CDockWidget()");
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	this->disconnect();
 #endif
 	delete d;
@@ -1342,7 +1342,7 @@ CDockWidget::eToolBarStyleSource CDockWidget::toolBarStyleSource() const
 	return d->ToolBarStyleSource;
 }
 
-#if 1	//[ALB]
+#ifdef ADS_ROBOX_CHANGES
 //============================================================================
 void CDockWidget::setIsDragging(bool dragging)
 {

@@ -32,7 +32,7 @@
 #include <QScrollArea>
 #include "ads_globals.h"
 
-#if 1	// [#2920]
+#ifdef ADS_ROBOX_CHANGES	// [#2920]
 class QResizeEvent;
 #endif
 
@@ -226,7 +226,7 @@ Q_SIGNALS:
 	 */
 	void elidedChanged(bool elided);
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 protected slots:
 	/*! Slot per forzare visualizzazione tab aggiunto [#2431] */
 	void ensureCurrentTabVisible();
@@ -234,7 +234,7 @@ protected slots:
 protected:
 	/*! Reimplementazione metodo */
 	void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
-#endif	// 1
+#endif
 }; // class CDockAreaTabBar
 } // namespace ads
 //-----------------------------------------------------------------------------

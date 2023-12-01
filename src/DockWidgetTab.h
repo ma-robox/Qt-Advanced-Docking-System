@@ -53,7 +53,7 @@ class ADS_EXPORT CDockWidgetTab : public QFrame
 	Q_PROPERTY(bool activeTab READ isActiveTab WRITE setActiveTab NOTIFY activeTabChanged)
 	Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	Q_PROPERTY(bool darkTheme READ isDarkTheme WRITE setDarkTheme);
 	Q_PROPERTY(bool hovering READ isHovering WRITE setHovering);
 	Q_PROPERTY(bool modified READ isModified WRITE setModified);
@@ -195,7 +195,7 @@ Q_SIGNALS:
 	void moved(const QPoint& GlobalPos);
 	void elidedChanged(bool elided);
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 public:
 	/*! Reload UI for theme change */
 	void initUi(bool isDarkTheme);
@@ -225,7 +225,7 @@ protected:
 	bool m_isHovering;
 	bool m_isModified;
 	bool m_isDragged;
-#endif	// 1
+#endif
 }; // class DockWidgetTab
 }
  // namespace ads

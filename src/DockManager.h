@@ -768,7 +768,7 @@ Q_SIGNALS:
      */
     void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 public Q_SLOTS:
 	/**
 	 * Aggiorna il nome di un DockWidget
@@ -822,7 +822,7 @@ protected:
 	/*! Testo extra per titoli finestre */
 	QString m_titleExtra;
 
-#endif	// 1
+#endif
 }; // class DockManager
 } // namespace ads
 

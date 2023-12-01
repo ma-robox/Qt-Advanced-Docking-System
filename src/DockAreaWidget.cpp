@@ -435,9 +435,9 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 		Q_EMIT d->DockManager->dockAreaCreated(this);
 	}
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	m_CentralDockWidget = Q_NULLPTR;
-#endif	//1
+#endif
 }
 
 
@@ -701,7 +701,7 @@ void CDockAreaWidget::setCurrentIndex(int index)
 		return;
 	}
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	if ((nw == m_CentralDockWidget) && (TabBar->count() != 1))
 	{
 		// [#2364]
@@ -716,7 +716,7 @@ void CDockAreaWidget::setCurrentIndex(int index)
 			return;
 		}
 	}
-#endif	// 1
+#endif
     Q_EMIT currentChanging(index);
     TabBar->setCurrentIndex(index);
 	d->ContentsLayout->setCurrentIndex(index);
@@ -1303,7 +1303,7 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	switch (borders)
 	{
 	// 1. It's touching all borders
-#if 0	//[ALB]
+#ifdef ADS_ROBOX_CHANGES
 	case BorderAll: SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
 #else
 	case BorderAll: SideTab = SideBarLocation::SideBarRight; break;
@@ -1320,16 +1320,16 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
 
 	// 4. It's in a corner
-#if 0	//[ALB]
-	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
-	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
-	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
-	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
-#else
+#ifdef ADS_ROBOX_CHANGES
 	case BorderTopLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderTopRight: SideTab = SideBarLocation::SideBarRight; break;
 	case BorderBottomLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderBottomRight: SideTab = SideBarLocation::SideBarRight; break;
+#else
+	case BorderTopLeft: SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
+	case BorderTopRight: SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
+	case BorderBottomLeft: SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
+	case BorderBottomRight: SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
 #endif
 
 	// 5. It's touching only one border
@@ -1503,7 +1503,7 @@ bool CDockAreaWidget::event(QEvent *e)
 }
 #endif
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 //============================================================================
 CDockWidget* CDockAreaWidget::nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough)
 {
@@ -1573,7 +1573,7 @@ void CDockAreaWidget::setActiveDockWidget(CDockWidget *DockWidget)
 	if (index > -1)
 		setCurrentIndex(index);
 }
-#endif	// 1
+#endif
 } // namespace ads
 
 //---------------------------------------------------------------------------

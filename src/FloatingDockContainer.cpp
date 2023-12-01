@@ -39,8 +39,9 @@
 #include <QAbstractButton>
 #include <QElapsedTimer>
 #include <QTime>
-#if 1
-#include <QMenuBar>
+#ifdef ADS_ROBOX_CHANGES
+	#include <QMenuBar>
+	#include "tool/appinfo.h"
 #endif
 
 #include "DockContainerWidget.h"
@@ -424,7 +425,7 @@ struct FloatingDockContainerPrivate
         {
             qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
         }
-#if 1	//[ALB]
+#ifdef ADS_ROBOX_CHANGES
 		if (!DockContainer)
 			return;
 		for (auto area : DockContainer->openedDockAreas())
@@ -454,19 +455,23 @@ struct FloatingDockContainerPrivate
 		// reflect CurrentWidget's title if configured to do so, otherwise display application name as window title
 		if (testConfigFlag(CDockManager::FloatingContainerHasWidgetTitle))
 		{
-#if 0	// [ALB]
-			setWindowTitle(CurrentWidget->windowTitle());
+#ifdef ADS_ROBOX_CHANGES
+			setWindowTitle(CurrentWidget->windowTitle() + toolAppInfo::titleSeparator() + DockManager->titleExtra() + toolAppInfo::titleSeparator() + toolAppInfo::title());
 #else
-			setWindowTitle(CurrentWidget->windowTitle() + DockManager->titleExtra());
-#endif	// [ALB]
+			setWindowTitle(CurrentWidget->windowTitle());
+#endif
 		}
 		else
 		{
-#if 0	// [ALB]
-			setWindowTitle(floatingContainersTitle());
+#ifdef ADS_ROBOX_CHANGES
+			QString title = floatingContainersTitle();
+			if (title.isEmpty())
+				setWindowTitle(DockManager->titleExtra() + toolAppInfo::titleSeparator() + toolAppInfo::title());
+			else
+				setWindowTitle(title + toolAppInfo::titleSeparator() + DockManager->titleExtra() + toolAppInfo::titleSeparator() + toolAppInfo::title());
 #else
-			setWindowTitle(floatingContainersTitle() + DockManager->titleExtra());
-#endif	// [ALB]
+			setWindowTitle(floatingContainersTitle());
+#endif
 
 		}
 
@@ -745,7 +750,7 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	l->setContentsMargins(0, 0, 0, 0);
 	l->setSpacing(0);
 	setLayout(l);
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	m_menuBar = new QMenuBar(this);
 	l->addWidget(m_menuBar);
 	l->addWidget(d->DockContainer);
@@ -792,7 +797,7 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
 CFloatingDockContainer::~CFloatingDockContainer()
 {
 	ADS_PRINT("~CFloatingDockContainer");
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	m_menuBar = Q_NULLPTR;
 #endif
 	if (d->DockManager)
@@ -1095,10 +1100,14 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			    SLOT(onDockAreaCurrentChanged(int)));
 			d->SingleDockArea = nullptr;
 		}
-#if 0	// [ALB]
-		d->setWindowTitle(d->floatingContainersTitle());
+#ifdef ADS_ROBOX_CHANGES
+		QString title = d->floatingContainersTitle();
+		if (title.isEmpty())
+			d->setWindowTitle(d->floatingContainersTitle() + d->DockManager->titleExtra());
+		else
+			d->setWindowTitle(title + toolAppInfo::titleSeparator() + d->DockManager->titleExtra() + toolAppInfo::titleSeparator() + toolAppInfo::title());
 #else
-		d->setWindowTitle(d->floatingContainersTitle() + d->DockManager->titleExtra());
+		d->setWindowTitle(d->floatingContainersTitle());
 #endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}
@@ -1126,10 +1135,14 @@ void CFloatingDockContainer::updateWindowTitle()
 	}
 	else
 	{
-#if 0	// [ALB]
-		d->setWindowTitle(d->floatingContainersTitle());
+#ifdef ADS_ROBOX_CHANGES
+		QString title = d->floatingContainersTitle();
+		if (title.isEmpty())
+			d->setWindowTitle(d->floatingContainersTitle() + d->DockManager->titleExtra());
+		else
+			d->setWindowTitle(title + toolAppInfo::titleSeparator() + d->DockManager->titleExtra() + toolAppInfo::titleSeparator() + toolAppInfo::title());
 #else
-		d->setWindowTitle(d->floatingContainersTitle() + d->DockManager->titleExtra());
+		d->setWindowTitle(d->floatingContainersTitle());
 #endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}

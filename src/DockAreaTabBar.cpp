@@ -37,7 +37,7 @@
 #include <QApplication>
 #include <QtGlobal>
 #include <QTimer>
-#if 1	// [#2920]
+#ifdef ADS_ROBOX_CHANGES	// [#2920]
 #include <QResizeEvent>
 #endif
 
@@ -227,7 +227,7 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 
 	updateGeometry();
 
-#if 1	// [#2431]
+#ifdef ADS_ROBOX_CHANGES	// [#2431]
 	QMetaObject::invokeMethod(this, "ensureCurrentTabVisible", Qt::QueuedConnection);
 #endif
 }
@@ -475,7 +475,7 @@ bool CDockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
     case QEvent::LayoutRequest:
          updateGeometry();
          break;
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	case QEvent::Wheel:
 		wheelEvent((QWheelEvent *)event);
 		break;
@@ -557,7 +557,7 @@ int CDockAreaTabBar::tabInsertIndexAt(const QPoint& Pos) const
 } // namespace ads
 
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 namespace ads
 {
 //===========================================================================
@@ -576,7 +576,7 @@ void CDockAreaTabBar::resizeEvent(QResizeEvent *event)
 	QScrollArea::resizeEvent(event);
 }
 } // namespace ads
-#endif	// 1
+#endif
 
 
 //---------------------------------------------------------------------------

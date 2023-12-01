@@ -374,11 +374,11 @@ Q_SIGNALS:
 	 */
 	void dockAreaViewToggled(ads::CDockAreaWidget* DockArea, bool Open);
 
-#if 1	//[ALB]
+#ifdef ADS_ROBOX_CHANGES
 public:
 	/*! Helper impostazione programmatica dimensione aree */
 	QSplitter * mainSplitter() const { return rootSplitter(); }
-#endif	// 1
+#endif
 }; // class DockContainerWidget
 } // namespace ads
 //-----------------------------------------------------------------------------

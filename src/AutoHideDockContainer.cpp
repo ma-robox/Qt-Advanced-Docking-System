@@ -201,11 +201,11 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	d->SideTabBarArea = area;
 	d->SideTab = componentsFactory()->createDockWidgetSideTab(nullptr);
 	connect(d->SideTab, &CAutoHideTab::pressed, this, &CAutoHideDockContainer::toggleCollapseState);
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	parent->setProperty("RoboxAutoHideTabWithPinButton", true);
 #endif
 	d->DockArea = new CDockAreaWidget(DockWidget->dockManager(), parent);
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	parent->setProperty("RoboxAutoHideTabWithPinButton", false);
 #endif
 	d->DockArea->setObjectName("autoHideDockArea");

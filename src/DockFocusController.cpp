@@ -307,7 +307,7 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
 //===========================================================================
 void CDockFocusController::setDockWidgetTabFocused(CDockWidgetTab* Tab)
 {
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	if (!Tab)
 		return;
 #endif

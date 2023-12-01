@@ -175,11 +175,11 @@ QSize CElidingLabel::minimumSizeHint() const
     }
     const QFontMetrics  &fm = fontMetrics();
     #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
-		#if 0 // [#2425]
-			QSize size(fm.horizontalAdvance(d->Text.left(2) + "…"), fm.height());
-		#else
+		#ifdef ADS_ROBOX_CHANGES // [#2425]
 			QSize size(fm.horizontalAdvance((d->Text.size() > minCharsInLabel)? (d->Text.left(minCharsInLabel - 1) + "…") : (d->Text)), fm.height());
-		#endif	
+		#else
+			QSize size(fm.horizontalAdvance(d->Text.left(2) + "…"), fm.height());
+		#endif
     #else
         QSize size(fm.width(d->Text.left(2) + "…"), fm.height());
     #endif

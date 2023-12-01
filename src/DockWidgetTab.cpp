@@ -76,7 +76,7 @@ struct DockWidgetTabPrivate
 	IFloatingWidget* FloatingWidget = nullptr;
 	QIcon Icon;
 	QAbstractButton* CloseButton = nullptr;
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	QAbstractButton* AutoHideButton = nullptr;
 #endif
 	QSpacerItem* IconTextSpacer;
@@ -164,7 +164,7 @@ struct DockWidgetTabPrivate
 		CloseButton->setSizePolicy(SizePolicy);
 	}
 
-#if 1	// NOTE: tengo le stesse regole del close button
+#ifdef ADS_ROBOX_CHANGES	// NOTE: tengo le stesse regole del close button
 	/**
 	 * Creates the auto hide button as QPushButton or as QToolButton
 	 */
@@ -224,7 +224,7 @@ struct DockWidgetTabPrivate
 			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
 			{
 				DragState = DraggingInactive;
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 				_this->NdragStateChanged();
 #endif
 			});
@@ -306,10 +306,10 @@ void DockWidgetTabPrivate::createLayout()
 	}
 	else
 	{
-#if 0	// [#2314]
-		TitleLabel->setElideMode(Qt::ElideRight);
-#else
+#ifdef ADS_ROBOX_CHANGES	// [#2314]
 		TitleLabel->setElideMode(Qt::ElideLeft);
+#else
+		TitleLabel->setElideMode(Qt::ElideRight);
 #endif
 	}
 	TitleLabel->setText(DockWidget->windowTitle());
@@ -327,7 +327,7 @@ void DockWidgetTabPrivate::createLayout()
 	internal::setToolTip(CloseButton, QObject::tr("Close Tab"));
 	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
 
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	AutoHideButton = createAutoHideButton();
 	AutoHideButton->setObjectName("tabAutoHideButton");
 	internal::setButtonIcon(AutoHideButton, QStyle::SP_TitleBarNormalButton, AutoHideIcon);
@@ -347,7 +347,7 @@ void DockWidgetTabPrivate::createLayout()
 	Layout->setSpacing(0);
 	_this->setLayout(Layout);
 	Layout->addWidget(TitleLabel, 1);
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	Layout->addSpacing(Spacing);
 	Layout->addWidget(AutoHideButton);
 #endif
@@ -392,7 +392,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	_this->NdragStateChanged();
 #endif
 	IFloatingWidget* FloatingWidget = nullptr;
@@ -441,12 +441,12 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 	d->createLayout();
 	setFocusPolicy(Qt::NoFocus);
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 	m_isDarkTheme = false;
 	m_isHovering = false;
 	m_isModified = false;
 	m_isDragged = false;
-#endif	// 1
+#endif
 }
 
 //============================================================================
@@ -503,7 +503,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			 ev->accept();
 			 d->FloatingWidget->finishDragging();
 			 break;
-#if 1	// [ALB] Semplice click sul tab -> focus()
+#ifdef ADS_ROBOX_CHANGES // Semplice click sul tab -> focus()
 		case DraggingMousePressed:
 		case DraggingInactive:
 			if (d->DockWidget && d->DockWidget->widget())
@@ -512,7 +512,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 				d->DockWidget->widget()->setFocus();
 			}
 			break;
-#endif	// 1
+#endif
 		default:
 			if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 			{
@@ -534,7 +534,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 		}
 	}
 
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	NdragStateChanged();
 #endif
 
@@ -548,7 +548,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
     {
     	d->DragState = DraggingInactive;
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 		NdragStateChanged();
 #endif
         Super::mouseMoveEvent(ev);
@@ -679,7 +679,7 @@ bool CDockWidgetTab::isActiveTab() const
 void CDockWidgetTab::setActiveTab(bool active)
 {
     d->updateCloseButtonVisibility(active);
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	d->updateAutoHideButtonVisibility(active);
 #endif
 
@@ -795,7 +795,7 @@ void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 		if ((!d->DockArea->dockContainer()->isFloating() || d->DockArea->dockWidgetsCount() > 1)
 			&& d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
 		{
-#if 0		// [ALB] Funzionalità rimossa
+#ifndef ADS_ROBOX_CHANGES
 			event->accept();
 			d->saveDragStartMousePosition(internal::globalPositionOf(event));
 			d->startFloating(DraggingInactive);
@@ -891,7 +891,7 @@ void CDockWidgetTab::onDockWidgetFeaturesChanged()
 {
 	d->updateCloseButtonSizePolicy();
 	d->updateCloseButtonVisibility(isActiveTab());
-#if 1
+#ifdef ADS_ROBOX_CHANGES
 	d->updateAutoHideButtonSizePolicy();
 	d->updateAutoHideButtonVisibility(isActiveTab());
 #endif
@@ -926,7 +926,7 @@ void CDockWidgetTab::setIconSize(const QSize& Size)
 }
 
 
-#if 1	// [ALB]
+#ifdef ADS_ROBOX_CHANGES
 //============================================================================
 void CDockWidgetTab::initUi(bool isDarkTheme)
 {
@@ -976,7 +976,7 @@ void CDockWidgetTab::NdragStateChanged()
 		emit dragStateChanged(m_isDragged);
 	}
 }
-#endif	// 1
+#endif
 } // namespace ads
 //---------------------------------------------------------------------------
 // EOF DockWidgetTab.cpp

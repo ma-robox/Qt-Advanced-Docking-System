@@ -369,4 +369,7 @@ QRect globalGeometry(QWidget* w);
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ads::DockWidgetAreas)
 //---------------------------------------------------------------------------
+
+#define ADS_ROBOX_CHANGES
+
 #endif // ads_globalsH
