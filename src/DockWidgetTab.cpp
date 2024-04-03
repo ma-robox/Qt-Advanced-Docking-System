@@ -56,7 +56,6 @@
 
 namespace ads
 {
-static const char* const LocationProperty = "Location";
 using tTabLabel = CElidingLabel;
 
 /**
@@ -278,7 +277,7 @@ struct DockWidgetTabPrivate
 		QMenu* Menu)
 	{
 		auto Action = Menu->addAction(Title);
-		Action->setProperty("Location", Location);
+		Action->setProperty(internal::LocationProperty, Location);
 		QObject::connect(Action, &QAction::triggered, _this, &CDockWidgetTab::onAutoHideToActionClicked);
 		return Action;
 	}
@@ -869,7 +868,7 @@ void CDockWidgetTab::autoHideDockWidget()
 //===========================================================================
 void CDockWidgetTab::onAutoHideToActionClicked()
 {
-	int Location = sender()->property(LocationProperty).toInt();
+	int Location = sender()->property(internal::LocationProperty).toInt();
 	d->DockWidget->toggleAutoHide((SideBarLocation)Location);
 }
 
@@ -944,7 +943,15 @@ void CDockWidgetTab::initUi(bool isDarkTheme)
 }
 
 //============================================================================
+#ifdef ADS_ROBOX_CHANGES
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void CDockWidgetTab::enterEvent(QEvent *e)
+#else
+void CDockWidgetTab::enterEvent(QEnterEvent *e)
+#endif
+#else
+void CDockWidgetTab::enterEvent(QEvent *e)
+#endif
 {
 	Q_UNUSED(e);
 	setHovering(true);

@@ -80,8 +80,8 @@ struct DockWidgetPrivate
 	QWidget* Widget = nullptr;
 	CDockWidgetTab* TabWidget = nullptr;
 	CDockWidget::DockWidgetFeatures Features = CDockWidget::DefaultDockWidgetFeatures;
-	CDockManager* DockManager = nullptr;
-	CDockAreaWidget* DockArea = nullptr;
+	QPointer<CDockManager> DockManager;
+	QPointer<CDockAreaWidget> DockArea;
 	QAction* ToggleViewAction = nullptr;
 	bool Closed = false;
 	QScrollArea* ScrollArea = nullptr;
@@ -271,7 +271,10 @@ void DockWidgetPrivate::closeAutoHideDockWidgetsIfNeeded()
 		return;
 	}
 
-	if (!DockContainer->openedDockWidgets().isEmpty())
+	// If the dock container is the dock manager, or if it is not empty, then we
+	// don't need to do anything
+	if ((DockContainer == _this->dockManager())
+	 || !DockContainer->openedDockWidgets().isEmpty())
 	{
 		return;
 	}
@@ -391,7 +394,7 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 //============================================================================
 CDockWidget::~CDockWidget()
 {
-    ADS_PRINT("~CDockWidget()");
+    ADS_PRINT("~CDockWidget(): " << this->windowTitle());
 #ifdef ADS_ROBOX_CHANGES
 	this->disconnect();
 #endif
@@ -523,10 +526,19 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 		return;
 	}
 	d->Features = features;
+	notifyFeaturesChanged();
+}
+
+
+//============================================================================
+void CDockWidget::notifyFeaturesChanged()
+{
 	Q_EMIT featuresChanged(d->Features);
 	d->TabWidget->onDockWidgetFeaturesChanged();
 	if(CDockAreaWidget* DockArea = dockAreaWidget())
+	{
 		DockArea->onDockWidgetFeaturesChanged();
+	}
 }
 
 
@@ -542,7 +554,14 @@ void CDockWidget::setFeature(DockWidgetFeature flag, bool on)
 //============================================================================
 CDockWidget::DockWidgetFeatures CDockWidget::features() const
 {
-	return d->Features;
+	if (d->DockManager)
+	{
+		return d->Features &~ d->DockManager->globallyLockedDockWidgetFeatures();
+	}
+	else
+	{
+		return d->Features;
+	}
 }
 
 
@@ -578,7 +597,7 @@ CDockContainerWidget* CDockWidget::dockContainer() const
 	}
 	else
 	{
-		return 0;
+		return nullptr;
 	}
 }
 

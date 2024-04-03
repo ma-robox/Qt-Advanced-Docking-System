@@ -164,10 +164,14 @@ void CElidingLabel::resizeEvent(QResizeEvent *event)
 //============================================================================
 QSize CElidingLabel::minimumSizeHint() const
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-    bool HasPixmap = !pixmap(Qt::ReturnByValue).isNull();
+#if defined(ADS_ROBOX_CHANGES) && (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+	bool HasPixmap = !pixmap().isNull();
 #else
-    bool HasPixmap = (pixmap() != nullptr);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+	bool HasPixmap = !pixmap(Qt::ReturnByValue).isNull();
+#else
+	bool HasPixmap = (pixmap() != nullptr);
+#endif
 #endif
     if (HasPixmap || d->isModeElideNone())
     {
@@ -190,10 +194,14 @@ QSize CElidingLabel::minimumSizeHint() const
 //============================================================================
 QSize CElidingLabel::sizeHint() const
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-    bool HasPixmap = !pixmap(Qt::ReturnByValue).isNull();
+#if defined(ADS_ROBOX_CHANGES) && (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+	bool HasPixmap = !pixmap().isNull();
 #else
-    bool HasPixmap = (pixmap() != nullptr);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+	bool HasPixmap = !pixmap(Qt::ReturnByValue).isNull();
+#else
+	bool HasPixmap = (pixmap() != nullptr);
+#endif
 #endif
     if (HasPixmap || d->isModeElideNone())
     {
