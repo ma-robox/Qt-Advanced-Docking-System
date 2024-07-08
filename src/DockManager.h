@@ -801,6 +801,18 @@ Q_SIGNALS:
     void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
 
 #ifdef ADS_ROBOX_CHANGES
+protected:
+	/*! Impostazioni navigazione da tastiera
+		* Aggiunte perché possa essere reso configurabile in futuro.
+		*/
+	enum class NavOptions
+	{
+		navNone = 0,
+		navCycleArea,
+		navCycleContainer,
+		navCycleApp,
+	};
+
 public Q_SLOTS:
 	/**
 	 * Aggiorna il nome di un DockWidget
@@ -808,6 +820,9 @@ public Q_SLOTS:
 	 * \result Esito logico aggiornamento, falso se widget non trovato
 	 */
 	void updateDockWidgetName(CDockWidget *Dockwidget);
+
+	/*! Primitiva per gestione focus per [#3421] */
+	virtual void unfocusableWidgetGotFocus();
 
 public:
 	/**
@@ -849,6 +864,12 @@ public:
 
 	/*! Ritorna testo extra per titolo finestre */
 	QString titleExtra() { return m_titleExtra; }
+
+	/*! Helper ricerca prossimo widget */
+	ads::CDockWidget *nextOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option);
+
+	/*! Helper ricerca widget precedente */
+	ads::CDockWidget *previousOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option);
 
 protected:
 	/*! Testo extra per titoli finestre */

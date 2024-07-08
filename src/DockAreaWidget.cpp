@@ -449,6 +449,8 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 
 #ifdef ADS_ROBOX_CHANGES
 	m_CentralDockWidget = Q_NULLPTR;
+	if (DockManager)
+		connect(this, &CDockAreaWidget::unfocusableWidgetGotFocus, DockManager, &CDockManager::unfocusableWidgetGotFocus);
 #endif
 }
 
@@ -457,6 +459,10 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 CDockAreaWidget::~CDockAreaWidget()
 {
     ADS_PRINT("~CDockAreaWidget()");
+#ifdef ADS_ROBOX_CHANGES
+	if (d->DockManager)
+		disconnect(this, &CDockAreaWidget::unfocusableWidgetGotFocus, d->DockManager, &CDockManager::unfocusableWidgetGotFocus);
+#endif
 	delete d->ContentsLayout;
 	delete d;
 }
@@ -614,6 +620,10 @@ void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 
 #if (ADS_DEBUG_LEVEL > 0)
 	DockContainer->dumpLayout();
+#endif
+#ifdef ADS_ROBOX_CHANGES
+	if (NextOpenDockWidget && !NextOpenDockWidget->features().testFlag(CDockWidget::DockWidgetFocusable))
+		emit unfocusableWidgetGotFocus();
 #endif
 }
 

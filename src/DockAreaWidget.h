@@ -468,6 +468,10 @@ public:
 	/*! Imposta dock widget corrente */
 	void setActiveDockWidget(CDockWidget *DockWidget);
 
+signals:
+	/*! Segnale per [#3421] dock widget non focusable che ottiene focus */
+	void unfocusableWidgetGotFocus();
+
 protected:
 	CDockWidget *m_CentralDockWidget;
 #endif
