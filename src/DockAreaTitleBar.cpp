@@ -395,12 +395,16 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 {
 	if (CDockManager::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
+#ifdef ADS_ROBOX_CHANGES
+		bool TabsMenuButtonVisible = d->TabBar->areTabsOverflowing();
+#else
 		bool TabsMenuButtonVisible = false;
 		if (CDockManager::testConfigFlag(CDockManager::DisableTabTextEliding))
 		{
 			TabsMenuButtonVisible = d->TabBar->areTabsOverflowing();
 		}
 		else
+#endif
 		{
 			bool hasElidedTabTitle = false;
 			for (int i = 0; i < d->TabBar->count(); ++i)
@@ -416,7 +420,11 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 					break;
 				}
 			}
+#ifdef ADS_ROBOX_CHANGES
+			TabsMenuButtonVisible |= (hasElidedTabTitle && (d->TabBar->count() > 1));
+#else
 			TabsMenuButtonVisible = (hasElidedTabTitle && (d->TabBar->count() > 1));
+#endif
 		}
 		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, TabsMenuButtonVisible));
 	}

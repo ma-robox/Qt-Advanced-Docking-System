@@ -590,5 +590,6 @@ void CDockAreaTabBar::resizeEvent(QResizeEvent *event)
 } // namespace ads
 #endif
 
+
 //---------------------------------------------------------------------------
 // EOF DockAreaTabBar.cpp
