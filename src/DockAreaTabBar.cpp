@@ -114,7 +114,7 @@ void DockAreaTabBarPrivate::updateTabs()
 			// Sometimes the synchronous calculation of the rectangular area fails
 			// Therefore we use QTimer::singleShot here to execute the call
 			// within the event loop - see #520
-			QTimer::singleShot(0, TabWidget, [&, TabWidget]
+			QTimer::singleShot(0, _this, [&, TabWidget]
 			{
 				_this->ensureWidgetVisible(TabWidget);
 			});
@@ -558,6 +558,14 @@ int CDockAreaTabBar::tabInsertIndexAt(const QPoint& Pos) const
 		return (Index < 0) ? 0 : Index;
 	}
 }
+
+
+//===========================================================================
+bool CDockAreaTabBar::areTabsOverflowing() const
+{
+	return d->TabsContainerWidget->width() > width();
+}
+
 } // namespace ads
 
 
@@ -581,7 +589,6 @@ void CDockAreaTabBar::resizeEvent(QResizeEvent *event)
 }
 } // namespace ads
 #endif
-
 
 //---------------------------------------------------------------------------
 // EOF DockAreaTabBar.cpp
