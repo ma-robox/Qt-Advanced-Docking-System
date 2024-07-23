@@ -210,6 +210,9 @@ public:
 	bool isDragging();
 	void NdragStateChanged();
 
+	/*! Helper cambio stato di drag */
+	void forceDraggingTabState();
+
 	/*! Reimplementazione metodo */
 #ifdef ADS_ROBOX_CHANGES
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

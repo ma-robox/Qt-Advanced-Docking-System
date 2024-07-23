@@ -173,6 +173,13 @@ void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
 	{
 		horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
 	}
+#ifdef ADS_ROBOX_CHANGES
+	if (currentTab() && currentTab()->isDragging())
+	{
+		currentTab()->forceDraggingTabState();
+		currentTab()->event(&QMouseEvent(QEvent::MouseMove, currentTab()->mapFromGlobal(QCursor::pos()), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
+	}
+#endif
 }
 
 

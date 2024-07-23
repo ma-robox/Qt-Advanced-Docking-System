@@ -53,6 +53,10 @@
 #include "IconProvider.h"
 #include "DockFocusController.h"
 
+#ifdef ADS_ROBOX_CHANGES
+#include "DockAreaTabBar.h"
+#include <QScrollBar>
+#endif
 
 namespace ads
 {
@@ -77,6 +81,7 @@ struct DockWidgetTabPrivate
 	QAbstractButton* CloseButton = nullptr;
 #ifdef ADS_ROBOX_CHANGES
 	QAbstractButton* AutoHideButton = nullptr;
+	int DragStartBarScrollValue;
 #endif
 	QSpacerItem* IconTextSpacer;
 	QPoint TabDragStartPosition;
@@ -238,6 +243,9 @@ struct DockWidgetTabPrivate
 	{
 		GlobalDragStartMousePosition = GlobalPos;
 		DragStartMousePosition = _this->mapFromGlobal(GlobalPos);
+#ifdef ADS_ROBOX_CHANGES
+		DragStartBarScrollValue = _this->dockAreaWidget()->titleBar()->tabBar()->horizontalScrollBar()->value();
+#endif
 	}
 
 	/**
@@ -364,6 +372,9 @@ void DockWidgetTabPrivate::moveTab(QMouseEvent* ev)
     ev->accept();
     QPoint Distance = internal::globalPositionOf(ev) - GlobalDragStartMousePosition;
     Distance.setY(0);
+#ifdef ADS_ROBOX_CHANGES
+	Distance.rx() += _this->dockAreaWidget()->titleBar()->tabBar()->horizontalScrollBar()->value() - DragStartBarScrollValue;
+#endif
     auto TargetPos = Distance + TabDragStartPosition;
     TargetPos.rx() = qMax(TargetPos.x(), 0);
     TargetPos.rx() = qMin(_this->parentWidget()->rect().right() - _this->width() + 1, TargetPos.rx());
@@ -979,7 +990,9 @@ void CDockWidgetTab::setModified(bool fl)
 //============================================================================
 bool CDockWidgetTab::isDragging()
 {
-	return d->isDraggingState(DraggingFloatingWidget);
+	return d->isDraggingState(DraggingFloatingWidget) ||
+		   d->isDraggingState(DraggingMousePressed) ||
+		   d->isDraggingState(DraggingTab);
 }
 
 //============================================================================
@@ -990,6 +1003,16 @@ void CDockWidgetTab::NdragStateChanged()
 	{
 		m_isDragged = isDragging();
 		emit dragStateChanged(m_isDragged);
+	}
+}
+
+//============================================================================
+void CDockWidgetTab::forceDraggingTabState()
+{
+	if (d->DragState == DraggingMousePressed)
+	{
+		d->TabDragStartPosition = this->pos();
+		d->DragState = DraggingTab;
 	}
 }
 #endif
