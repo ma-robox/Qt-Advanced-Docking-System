@@ -163,25 +163,16 @@ CDockAreaTabBar::~CDockAreaTabBar()
 //============================================================================
 void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
 {
-	Event->accept();
-	const int direction = Event->angleDelta().y();
-	if (direction < 0)
-	{
-		horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 20);
-	}
-	else
-	{
-		horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
-	}
 #ifdef ADS_ROBOX_CHANGES
 	if (currentTab() && currentTab()->isDragging())
 	{
 		currentTab()->forceDraggingTabState();
 		currentTab()->event(&QMouseEvent(QEvent::MouseMove, currentTab()->mapFromGlobal(QCursor::pos()), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
 	}
+#else
+    QCoreApplication::sendEvent(horizontalScrollBar(), Event);
 #endif
 }
-
 
 //============================================================================
 void CDockAreaTabBar::setCurrentIndex(int index)
@@ -370,7 +361,7 @@ void CDockAreaTabBar::onCloseOtherTabsRequested()
 				CDockWidget::DockWidgetDeleteOnClose) ? 1 : 0;
 			closeTab(i);
 
-			// If the the dock widget blocks closing, i.e. if the flag
+			// If the dock widget blocks closing, i.e. if the flag
 			// CustomCloseHandling is set, and the dock widget is still open,
 			// then we do not need to correct the index
 			if (Tab->dockWidget()->isClosed())
@@ -490,6 +481,15 @@ bool CDockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
 	case QEvent::Wheel:
 		wheelEvent((QWheelEvent *)event);
 		break;
+#else
+    // Manage wheel event
+    case QEvent::Wheel:
+    	// Ignore wheel events if tab is currently dragged
+    	if (Tab->dragState() == DraggingInactive)
+    	{
+    		wheelEvent((QWheelEvent* )event);
+    	}
+        break;
 #endif
 	default:
 		break;

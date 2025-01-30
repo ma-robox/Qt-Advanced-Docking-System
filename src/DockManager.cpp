@@ -48,8 +48,11 @@
 #include <QApplication>
 #include <QWindow>
 #include <QWindowStateChangeEvent>
+#include <QVector>
 
+#ifdef ADS_ROBOX_CHANGES
 #include "tool/appinfo.h"
+#endif
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -61,6 +64,8 @@
 #include "DockAreaTitleBar.h"
 #include "DockFocusController.h"
 #include "DockSplitter.h"
+#include "DockComponentsFactory.h"
+
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include "linux/FloatingWidgetTitleBar.h"
@@ -96,6 +101,7 @@ enum eStateFileVersion
 
 static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
 static CDockManager::AutoHideFlags StaticAutoHideConfigFlags; // auto hide feature is disabled by default
+static QVector<QVariant> StaticConfigParams(CDockManager::ConfigParamCount);
 
 static QString FloatingContainersTitle;
 
@@ -125,6 +131,7 @@ struct DockManagerPrivate
 	QSize ToolBarIconSizeDocked = QSize(16, 16);
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	CDockWidget::DockWidgetFeatures LockedDockWidgetFeatures;
+	QSharedPointer<ads::CDockComponentsFactory> ComponentFactory {ads::CDockComponentsFactory::factory()};
 
 	/**
 	 * Private data constructor
@@ -558,7 +565,7 @@ CDockManager::~CDockManager()
 	{
 		if (!area || area->dockManager() != this) continue;
 
-		// QPointer delete safety - just in case some dock wigdet in destruction
+		// QPointer delete safety - just in case some dock widget in destruction
 		// deletes another related/twin or child dock widget.
 		std::vector<QPointer<QWidget>> deleteWidgets;
 		for ( auto widget : area->dockWidgets() )
@@ -586,6 +593,35 @@ CDockManager::~CDockManager()
 
 	delete d;
 }
+
+
+//============================================================================
+CDockWidget* CDockManager::createDockWidget(const QString &title, QWidget* parent)
+{
+	return new CDockWidget(this, title, parent);
+}
+
+
+//============================================================================
+QSharedPointer<ads::CDockComponentsFactory> CDockManager::componentsFactory() const
+{
+    return d->ComponentFactory;
+}
+
+
+//============================================================================
+void CDockManager::setComponentsFactory(ads::CDockComponentsFactory* factory)
+{
+    setComponentsFactory(QSharedPointer<ads::CDockComponentsFactory>(factory));
+}
+
+
+//============================================================================
+void CDockManager::setComponentsFactory(QSharedPointer<ads::CDockComponentsFactory> factory)
+{
+    d->ComponentFactory = factory;
+}
+
 
 //============================================================================
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
@@ -1380,6 +1416,7 @@ void CDockManager::setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<
     }
 }
 
+
 //===========================================================================
 CDockFocusController* CDockManager::dockFocusController() const
 {
@@ -1402,6 +1439,7 @@ QString CDockManager::floatingContainersTitle()
 #endif
 	return FloatingContainersTitle;
 }
+
 
 //===========================================================================
 void CDockManager::setDockWidgetToolBarStyle(Qt::ToolButtonStyle Style, CDockWidget::eState State)
@@ -1477,13 +1515,29 @@ void CDockManager::lockDockWidgetFeaturesGlobally(CDockWidget::DockWidgetFeature
     }
 }
 
+
 //===========================================================================
 CDockWidget::DockWidgetFeatures CDockManager::globallyLockedDockWidgetFeatures() const
 {
 	return d->LockedDockWidgetFeatures;
 }
 
+void CDockManager::setConfigParam(CDockManager::eConfigParam Param, QVariant Value)
+{
+	StaticConfigParams[Param] = Value;
+}
+
+
+//===========================================================================
+QVariant CDockManager::configParam(eConfigParam Param, QVariant Default)
+{
+	return StaticConfigParams[Param].isValid() ? StaticConfigParams[Param] : Default;
+}
+} // namespace ads
+
 #ifdef ADS_ROBOX_CHANGES
+namespace ads
+{
 //============================================================================
 void CDockManager::updateDockWidgetName(CDockWidget* Dockwidget)
 {
@@ -1737,8 +1791,8 @@ ads::CDockWidget *CDockManager::previousOpenedDockWidget(ads::CDockWidget *curre
 	}
 	return widget;
 }
-#endif
 } // namespace ads
+#endif
 
 //---------------------------------------------------------------------------
 // EOF DockManager.cpp
