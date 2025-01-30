@@ -225,8 +225,6 @@ public:
 	/*! Funzioni per proprietà */
 	bool isDarkTheme()					{ return m_isDarkTheme; }
 	void setDarkTheme(bool isDarkTheme)	{ m_isDarkTheme = isDarkTheme; }
-	bool isHovering()					{ return m_isHovering; }
-	void setHovering(bool isHovering)	{ m_isHovering = isHovering; }
 	bool isModified()					{ return m_isModified; }
 	void setModified(bool isModified);
 	bool isDragging();
@@ -235,27 +233,12 @@ public:
 	/*! Helper cambio stato di drag */
 	void forceDraggingTabState();
 
-	/*! Reimplementazione metodo */
-#ifdef ADS_ROBOX_CHANGES
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-	void enterEvent(QEvent *e) Q_DECL_OVERRIDE;
-#else
-	void enterEvent(QEnterEvent *e) Q_DECL_OVERRIDE;
-#endif
-#else
-	void enterEvent(QEvent *e) Q_DECL_OVERRIDE;
-#endif
-
-	/*! Reimplementazione metodo */
-	void leaveEvent(QEvent *e) Q_DECL_OVERRIDE;
-
 Q_SIGNALS:
 	/*! Tab trascinata */
 	void dragStateChanged(bool d);
 
 protected:
 	bool m_isDarkTheme;
-	bool m_isHovering;
 	bool m_isModified;
 	bool m_isDragged;
 #endif

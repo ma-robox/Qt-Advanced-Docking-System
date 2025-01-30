@@ -453,7 +453,6 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 
 #ifdef ADS_ROBOX_CHANGES
 	m_isDarkTheme = false;
-	m_isHovering = false;
 	m_isModified = false;
 	m_isDragged = false;
 #endif
@@ -964,30 +963,6 @@ void CDockWidgetTab::setIconSize(const QSize& Size)
 void CDockWidgetTab::initUi(bool isDarkTheme)
 {
 	setDarkTheme(isDarkTheme);
-	updateStyle();
-}
-
-//============================================================================
-#ifdef ADS_ROBOX_CHANGES
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void CDockWidgetTab::enterEvent(QEvent *e)
-#else
-void CDockWidgetTab::enterEvent(QEnterEvent *e)
-#endif
-#else
-void CDockWidgetTab::enterEvent(QEvent *e)
-#endif
-{
-	Q_UNUSED(e);
-	setHovering(true);
-	updateStyle();
-}
-
-//============================================================================
-void CDockWidgetTab::leaveEvent(QEvent *e)
-{
-	Q_UNUSED(e);
-	setHovering(false);
 	updateStyle();
 }
 

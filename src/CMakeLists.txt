@@ -64,6 +64,7 @@ set(R_PCH
 
 set(R_RESOURCES
 	ads.qrc
+	stylesheets/focus_highlighting.css
 	)
 
 set(R_FORMS

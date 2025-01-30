@@ -50,10 +50,6 @@
 #include <QWindowStateChangeEvent>
 #include <QVector>
 
-#ifdef ADS_ROBOX_CHANGES
-#include "tool/appinfo.h"
-#endif
-
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
 #include "DockWidget.h"
@@ -66,6 +62,13 @@
 #include "DockSplitter.h"
 #include "DockComponentsFactory.h"
 
+#ifdef ADS_ROBOX_CHANGES
+	#include "tool/appinfo.h"
+	#ifdef _DEBUG
+		#include "tool/file.h"
+		#include <QFileInfo>
+	#endif
+#endif
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include "linux/FloatingWidgetTitleBar.h"

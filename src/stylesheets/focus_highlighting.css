@@ -38,7 +38,8 @@ ads--CDockAreaTitleBar {
 }
 
 ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar {
-	border-bottom: 2px solid palette(highlight);
+	border-bottom: 2px solid;
+	border-color: @accentColor@;
 	background: transparent;
 	padding-bottom: 0px;
 }
@@ -49,6 +50,11 @@ ads--CTitleBarButton {
 
 #tabsMenuButton::menu-indicator {
 	image: none;
+}
+
+#tabsMenuButton {
+	qproperty-icon: url(:/ads/@imgPath@/tabs-menu-button.svg);
+	qproperty-iconSize: 16px;
 }
 
 #dockAreaCloseButton {
@@ -87,10 +93,9 @@ ads--CDockWidgetTab[activeTab="true"][darkTheme="true"]{
 	background: palette(mid);
 }
 
-ads--CDockWidgetTab[hovering="true"][focused="false"][activeTab="false"],
-ads--CDockWidgetTab[hovering="true"][focused="false"][activeTab="true"]{
-	background: @inactiveTabHoverColor@;
-	border: 1px solid @inactiveTabHoverBorderColor@;
+ads--CDockWidgetTab[focused="false"][activeTab="false"]:hover,
+ads--CDockWidgetTab[focused="false"][activeTab="true"]:hover{
+	background: @hoverColor@;
 }
 
 ads--CDockWidgetTab QLabel {
@@ -98,7 +103,7 @@ ads--CDockWidgetTab QLabel {
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
-	color: palette(foreground);
+	color: palette(window-text);
 }
 
 ads--CDockWidgetTab[modified="true"] QLabel {
@@ -137,12 +142,13 @@ ads--CDockWidgetTab[modified="true"] QLabel {
 
 /* Focus related styling */
 ads--CDockWidgetTab[focused="true"][activeTab="true"] {
-	background: palette(highlight);
-	border-color: palette(highlight);
+	background: @accentColor@;
+	border-color: @accentColor@;
 }
 
 ads--CDockWidgetTab[focused="true"][activeTab="false"] {
-	border-top: 2px solid palette(highlight);
+	border-top: 2px solid;
+	border-color: @accentColor@;
 }
 
 ads--CDockWidgetTab[focused="false"][activeTab="true"][darkTheme="true"]{
@@ -194,6 +200,12 @@ QScrollArea#dockWidgetScrollArea {
 ads--CDockSplitter::handle {
 	background: palette(window);
 }
+ads--CDockSplitter::handle:hover {
+	background: @hoverColor@;
+}
+ads--CDockSplitter::handle:pressed {
+	background: @pressedColor@;
+}
 
 /*****************************************************************************
  *
@@ -214,11 +226,12 @@ ads--CAutoHideTab {
 	text-align: center;
 	min-height: 20px;
 	padding-bottom: 2px;
+	min-width:20px;
 }
 
 ads--CAutoHideTab:hover
 {
-	color: palette(highlight);
+	color: @accentColor@;
 }
 
 ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"],
@@ -236,14 +249,16 @@ ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="0"],
 ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="2"],
 ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"][activeTab="true"],
 ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"][activeTab="true"]  {
-	border-top: 3px solid palette(highlight);
+	border-top: 3px solid;
+	border-color: @accentColor@;
 }
 
 ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="1"],
 ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="3"],
 ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"][activeTab="true"],
 ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"][activeTab="true"] {
-	border-bottom: 3px solid palette(highlight);
+	border-bottom: 3px solid;
+	border-color: @accentColor@;
 }
 
 /**
@@ -269,22 +284,26 @@ ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"] {
  */
 ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="0"],
 ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"][activeTab="true"] {
-	border-top: 6px solid palette(highlight);
+	border-top: 6px solid;
+	border-color: @accentColor@;
 }
 
 ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="1"],
 ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"][activeTab="true"] {
-	border-left: 6px solid palette(highlight);
+	border-left: 6px solid;
+	border-color: @accentColor@;
 }
 
 ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="2"],
 ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"][activeTab="true"] {
-	border-right: 6px solid palette(highlight);
+	border-right: 6px solid;
+	border-color: @accentColor@;
 }
 
 ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="3"],
 ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"][activeTab="true"] {
-	border-bottom: 6px solid palette(highlight);
+	border-bottom: 6px solid;
+	border-color: @accentColor@;
 }
 
 /*****************************************************************************
@@ -324,7 +343,7 @@ ads--CAutoHideDockContainer {
 }
 
 ads--CAutoHideDockContainer ads--CDockAreaTitleBar {
-	background: palette(highlight);
+	background: @accentColor@;
 	padding: 0px;
 	border: none;
 }
@@ -334,7 +353,7 @@ ads--CAutoHideDockContainer ads--CDockAreaTitleBar {
  * overwrite the ads--CAutoHideDockContainer ads--CDockAreaTitleBar rule
  */
 ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar {
-	background: palette(highlight);
+	background: @accentColor@;
 	padding: 0px;
 	border: none;
 }
@@ -369,7 +388,7 @@ ads--CAutoHideDockContainer #dockAreaCloseButton{
 }
 
 ads--CAutoHideDockContainer ads--CTitleBarButton {
-	background: palette(highlight);
+	background: @accentColor@;
 	border-radius:1px;
 	border: 1px solid rgba(0, 0, 0, 0%);	/* DEVO modificare border o tutto il resto non viene applicato in nativo */
 	margin-top:1px;

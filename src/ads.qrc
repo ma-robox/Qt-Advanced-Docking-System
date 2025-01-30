@@ -34,6 +34,7 @@
         <file alias="detach-button-disabled.svg">images/dark/detach-button-disabled.svg</file>
         <file alias="pin-button.svg">images/dark/pin-button.svg</file>
         <file alias="pin-button-big.svg">images/dark/pin-button-big.svg</file>
+        <file alias="tabs-menu-button.svg">images/dark/tabs-menu-button.svg</file>
         <file alias="vs-pin-button.svg">images/dark/vs-pin-button.svg</file>
         <file alias="vs-pin-button-pinned.svg">images/dark/vs-pin-button-pinned.svg</file>
         <file alias="vs-pin-button_45.svg">images/dark/vs-pin-button_45.svg</file>
