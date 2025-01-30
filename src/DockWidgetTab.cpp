@@ -820,11 +820,9 @@ void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 		if ((!d->DockArea->dockContainer()->isFloating() || d->DockArea->dockWidgetsCount() > 1)
 			&& d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
 		{
-#ifndef ADS_ROBOX_CHANGES
 			event->accept();
 			d->saveDragStartMousePosition(internal::globalPositionOf(event));
 			d->startFloating(DraggingInactive);
-#endif
 		}
 	}
 

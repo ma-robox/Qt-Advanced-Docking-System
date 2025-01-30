@@ -167,7 +167,8 @@ void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
 	if (currentTab() && currentTab()->isDragging())
 	{
 		currentTab()->forceDraggingTabState();
-		currentTab()->event(&QMouseEvent(QEvent::MouseMove, currentTab()->mapFromGlobal(QCursor::pos()), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
+		QMouseEvent me(QEvent::MouseMove, currentTab()->mapFromGlobal(QCursor::pos()), QCursor::pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+		currentTab()->event(&me);
 	}
 #else
     QCoreApplication::sendEvent(horizontalScrollBar(), Event);

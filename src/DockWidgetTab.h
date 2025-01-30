@@ -57,7 +57,6 @@ class ADS_EXPORT CDockWidgetTab : public QFrame
 
 #ifdef ADS_ROBOX_CHANGES
 	Q_PROPERTY(bool darkTheme READ isDarkTheme WRITE setDarkTheme);
-	Q_PROPERTY(bool hovering READ isHovering WRITE setHovering);
 	Q_PROPERTY(bool modified READ isModified WRITE setModified);
 #endif
 
