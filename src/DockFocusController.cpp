@@ -428,6 +428,13 @@ CDockWidget* CDockFocusController::focusedDockWidget() const
 
 
 //==========================================================================
+CDockAreaWidget* CDockFocusController::focusedDockArea() const
+{
+    return d->FocusedArea.data();
+}
+
+
+//==========================================================================
 void CDockFocusController::setDockWidgetTabPressed(bool Value)
 {
 	d->TabPressed = Value;

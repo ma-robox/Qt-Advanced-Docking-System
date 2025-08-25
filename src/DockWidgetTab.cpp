@@ -55,6 +55,7 @@
 
 #ifdef ADS_ROBOX_CHANGES
 #include "DockAreaTabBar.h"
+#include "DockAreaTitleBar.h"
 #include <QScrollBar>
 #endif
 
@@ -650,13 +651,16 @@ QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
         Menu = new QMenu(this);
     }
     
+#ifndef ADS_ROBOX_CHANGES
+    qDebug() << "CDockWidgetTab::buildContextMenu";
+#endif
     const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
-    const bool isNotOnlyTabInContainer =  !d->DockArea->dockContainer()->hasTopLevelDockWidget();
     const bool isTopLevelArea = d->DockArea->isTopLevelArea();
-    const bool isDetachable = isFloatable && isNotOnlyTabInContainer;
+    const bool isFloating = d->DockWidget->isFloating();
+    const bool isDetachable = isFloatable && !isFloating;
 	QAction* Action;
 
-    if (!isTopLevelArea)
+    if (!(isTopLevelArea && isFloating))
     {
 		Action = Menu->addAction(tr("Detach"), this, SLOT(detachDockWidget()));
 		Action->setEnabled(isDetachable);
@@ -680,7 +684,7 @@ QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
 	Action->setEnabled(isClosable());
 	if (d->DockArea->openDockWidgetsCount() > 1)
 	{
-		Action = Menu->addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
+        Menu->addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
 	}
 
     return Menu;
@@ -712,9 +716,9 @@ void CDockWidgetTab::setActiveTab(bool active)
 	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting) && !d->DockWidget->dockManager()->isRestoringState())
 	{
 		bool UpdateFocusStyle = false;
-		if (active && !hasFocus())
-		{
-			//setFocus(Qt::OtherFocusReason);
+        // Update the focus only, if this the dock area of this tab is the focused dock area
+        if (active && !hasFocus() && (d->focusController()->focusedDockArea() == this->dockAreaWidget()))
+		{            
 			d->focusController()->setDockWidgetTabFocused(this);
 			UpdateFocusStyle = true;
 		}

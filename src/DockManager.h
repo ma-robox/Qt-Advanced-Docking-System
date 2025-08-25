@@ -770,6 +770,12 @@ public Q_SLOTS:
      */
     void hideManagerAndFloatingWidgets();
 
+    /**
+     * Calls raise() for the widget that hosts this dock manager.
+     * This will bring the widget in front of any other application that is running
+     */
+    void raise();
+
 Q_SIGNALS:
 	/**
 	 * This signal is emitted if the list of perspectives changed.
