@@ -7,7 +7,6 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
-[![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![windows-builds](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml/badge.svg?branch=master)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml)
 [![GitHub contributors](https://img.shields.io/github/contributors/githubuser0xFFFF/Qt-Advanced-Docking-System?color=ffdf00)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/graphs/contributors)
 
@@ -22,6 +21,18 @@ integrated development environments (IDEs) such as Visual Studio.
 [![Video Advanced Docking](doc/advanced-docking_video.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
 
 ## New and Noteworthy
+
+### Release 4.5
+
+#### Tabs at Bottom
+
+A new global dock manager flag `TabsAtBottom` has been added to configuration flags. This flag allows to configure if the tabs of dock areas are shown at the top (default) or at the bottom of the respective container.
+
+If the flag is set, tabs will be shown at the bottom instead of in the title bar.
+
+![TabsAtBottom true](doc/cfg_flag_TabsAtBottom_true.png)
+
+### Release 4.1
 
 Release [4.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) significantly improves the Auto-Hide functionality and also brings improvements
 for Drag and Drop of dock widgets into dock area tabs. These are the highlights of the new version:
@@ -142,6 +153,9 @@ know it from Visual Studio.
 ### Overview
 
 - [New and Noteworthy](#new-and-noteworthy)
+  - [Release 4.5](#release-45)
+    - [Tabs at Bottom](#tabs-at-bottom)
+  - [Release 4.1](#release-41)
     - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
     - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
     - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
@@ -194,6 +208,7 @@ know it from Visual Studio.
   - [DREAM3D-NX](#dream3d-nx)
   - [LabPlot](#labplot)
   - [Scrutiny Debugger](#scrutiny-debugger)
+  - [PiSoWorks](#pisoworks)
 - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
   - [KDDockWidgets](#kddockwidgets)
   - [QtitanDocking](#qtitandocking)
@@ -728,6 +743,15 @@ ADS powers Scrutiny’s flexible interface, letting users organize views and dat
 [read more...](https://scrutinydebugger.com/)
 
 [![Scrutiny Debugger UI](doc/showcase_scrutiny-dark.png)](https://www.youtube.com/watch?v=Dd3osxW-Clo)
+
+
+### [PiSoWorks](https://pypi.org/project/pisoworks/)
+
+PiSoWorks is an application for controlling the piezo amplifiers, such as the [NV200/D](https://www.piezosystem.com/product/nv-200-d-compact-amplifier/), from [piezosystem jena](https://www.piezosystem.com/) GmbH.
+
+![LabPlot](doc/showcase_pysoworks.png)
+
+[read more...](https://piezosystemjena.github.io/PiSoWorks/)
 
 ## Alternative Docking System Implementations
 

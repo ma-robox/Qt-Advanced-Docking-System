@@ -50,10 +50,10 @@
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
 #include "DockManager.h"
-#include "IconProvider.h"
 #include "DockFocusController.h"
 
 #ifdef ADS_ROBOX_CHANGES
+#include "IconProvider.h"
 #include "DockAreaTabBar.h"
 #include "DockAreaTitleBar.h"
 #include <QScrollBar>
@@ -244,7 +244,7 @@ struct DockWidgetTabPrivate
 		else
 		{
 			auto w = new CFloatingDragPreview(Widget);
-			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
+			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [this]()
 			{
 				DragState = DraggingInactive;
 #ifdef ADS_ROBOX_CHANGES
@@ -673,9 +673,7 @@ QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
         Menu = new QMenu(this);
     }
     
-#ifndef ADS_ROBOX_CHANGES
-    qDebug() << "CDockWidgetTab::buildContextMenu";
-#endif
+    ADS_PRINT("CDockWidgetTab::buildContextMenu");
     const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
     const bool isTopLevelArea = d->DockArea->isTopLevelArea();
     const bool isFloating = d->DockWidget->isFloating();

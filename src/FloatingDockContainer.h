@@ -229,7 +229,7 @@ public:
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CFloatingDockContainer();
+	~CFloatingDockContainer() override;
 
 	/**
 	 * Access function for the internal dock container

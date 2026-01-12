@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
 include(GNUInstallDirs)
+include(Versioning)
 if (${QT_VERSION_MAJOR})
   message(STATUS "Forced to use Qt version ${QT_VERSION_MAJOR}")
   find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
@@ -13,8 +14,8 @@ if (UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR GR
     set(ads_DEP_LIBS Core Gui GuiPrivate Widgets)
 endif()
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS ${ads_DEP_LIBS} REQUIRED)
-if (UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR GREATER 8)
-    include_directories(${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
+if (UNIX AND NOT APPLE AND ((QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR GREATER 8) OR QT_VERSION_MAJOR STREQUAL "5"))
+     include_directories(${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
 endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -83,6 +84,7 @@ if(BUILD_STATIC)
     target_compile_definitions( ${library_name} PUBLIC ADS_STATIC)
 else()
     add_library( ${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
+    add_windows_version_resources(${library_name})
     target_compile_definitions( ${library_name} PRIVATE ADS_SHARED_EXPORT)
 endif()
 
@@ -92,7 +94,7 @@ target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
 
-if(QT_VERSION_MAJOR STREQUAL "6")
+if(UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6")
     target_link_libraries(${library_name} PRIVATE Qt6::GuiPrivate) #needed for <qpa/qplatformnativeinterface.h>
 endif()
 
@@ -109,6 +111,7 @@ set_target_properties(${library_name} PROPERTIES
     AUTORCC ON
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
+    SOVERSION ${VERSION_SONAME}
     EXPORT_NAME ${library_name}
     DEBUG_POSTFIX "d"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
