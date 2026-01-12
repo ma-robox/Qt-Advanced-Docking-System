@@ -400,11 +400,6 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 		setFocusPolicy(Qt::ClickFocus);
 #endif
 	}
-
-#ifdef ADS_ROBOX_CHANGES
-	connect(d->TabWidget, &CDockWidgetTab::dragStateChanged, this, &CDockWidget::setIsDragging);
-	m_dragState = false;
-#endif
 }
 
 
@@ -1376,24 +1371,6 @@ CDockWidget::eToolBarStyleSource CDockWidget::toolBarStyleSource() const
 {
 	return d->ToolBarStyleSource;
 }
-
-#ifdef ADS_ROBOX_CHANGES
-//============================================================================
-void CDockWidget::setIsDragging(bool dragging)
-{
-	if (m_dragState != dragging)
-	{
-		m_dragState = dragging;
-		emit dragStateChanged(m_dragState);
-	}
-}
-
-//============================================================================
-bool CDockWidget::isDragging()
-{
-	return m_dragState;
-}
-#endif
 } // namespace ads
 
 //---------------------------------------------------------------------------

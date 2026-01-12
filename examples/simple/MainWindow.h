@@ -18,6 +18,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected slots:
+    void openChildDialog();
+
 private:
     Ui::MainWindow *ui;
     ads::CDockManager* m_DockManager;

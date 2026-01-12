@@ -425,14 +425,6 @@ struct FloatingDockContainerPrivate
         {
             qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
         }
-#ifdef ADS_ROBOX_CHANGES
-		if (!DockContainer)
-			return;
-		for (auto area : DockContainer->openedDockAreas())
-		{
-				area->currentDockWidget()->setIsDragging(StateId == DraggingFloatingWidget);
-		}
-#endif
 	}
 
 	void setWindowTitle(const QString &Text)

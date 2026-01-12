@@ -153,7 +153,11 @@ struct DockWidgetTabPrivate
 		bool ActiveTabHasCloseButton = testConfigFlag(CDockManager::ActiveTabHasCloseButton);
 		bool AllTabsHaveCloseButton = testConfigFlag(CDockManager::AllTabsHaveCloseButton);
 		bool TabHasCloseButton = (ActiveTabHasCloseButton && active) || AllTabsHaveCloseButton;
+#ifdef ADS_ROBOX_CHANGES
+		makeInvisibleButKeepSpace(CloseButton, DockWidgetClosable && TabHasCloseButton);
+#else
 		CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
+#endif
 	}
 
 	/**
@@ -192,12 +196,15 @@ struct DockWidgetTabPrivate
 	 */
 	void updateAutoHideButtonVisibility(bool active)
 	{
-		
 		bool DockWidgetClosable = DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
 		bool ActiveTabHasAutoHideButton = testConfigFlag(CDockManager::ActiveTabHasCloseButton);
 		bool AllTabsHaveAutoHideButton = testConfigFlag(CDockManager::AllTabsHaveCloseButton);
 		bool TabHasAutoHideButton = (ActiveTabHasAutoHideButton && active) || AllTabsHaveAutoHideButton;
+#ifdef ADS_ROBOX_CHANGES
+		makeInvisibleButKeepSpace(AutoHideButton, DockWidgetClosable && TabHasAutoHideButton);
+#else
 		AutoHideButton->setVisible(DockWidgetClosable && TabHasAutoHideButton);
+#endif
 	}
 
 	/**
@@ -211,6 +218,17 @@ struct DockWidgetTabPrivate
 		SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
 			&& testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
 		AutoHideButton->setSizePolicy(SizePolicy);
+	}
+
+	/*! Funzione custom per nascondere pulsanti */
+	void makeInvisibleButKeepSpace(QWidget *w, bool active)
+	{
+		w->setEnabled(active);
+		w->setAttribute(Qt::WA_TransparentForMouseEvents, !active);
+
+		const int w0 = !active ? 0 : 16;
+		w->setMinimumWidth(w0);
+		w->setMaximumWidth(w0+2);	// NOTE: vedi css, icona 16px + 2px bordi
 	}
 #endif
 
@@ -355,13 +373,17 @@ void DockWidgetTabPrivate::createLayout()
 	Layout->setSpacing(0);
 	_this->setLayout(Layout);
 	Layout->addWidget(TitleLabel, 1);
+	Layout->addSpacing(Spacing);
+#ifdef ADS_ROBOX_CHANGES
+	Layout->addWidget(AutoHideButton);
+	Layout->addSpacing(qRound(Spacing/2.0));
+#endif
+	Layout->addWidget(CloseButton);
 #ifdef ADS_ROBOX_CHANGES
 	Layout->addSpacing(Spacing);
-	Layout->addWidget(AutoHideButton);
-#endif
-	Layout->addSpacing(Spacing);
-	Layout->addWidget(CloseButton);
+#else
 	Layout->addSpacing(qRound(Spacing * 4.0 / 3.0));
+#endif
 	Layout->setAlignment(Qt::AlignCenter);
 
 	TitleLabel->setVisible(true);

@@ -74,15 +74,19 @@ ads--CTitleBarButton {
  *****************************************************************************/
 ads--CDockWidgetTab {
 	background: palette(window);
-	border-color: palette(dark);
+	border-color: palette(window);
 	border-style: solid;
-	border-width: 0 1px 0 0;
+	border-width: 0px;
+	border-right-width: 1px;
+	border-right-color: palette(dark);
+	border-top-width: 2px;
+	border-top-color: palette(window);
 	padding: 0 0px;
-	qproperty-iconSize: 16px 16px;/* this is optional in case you would like to change icon size*/
+	qproperty-iconSize: 16px 16px; /* this is optional in case you would like to change icon size*/
 }
 
 ads--CDockWidgetTab[darkTheme="true"] {
-	border-color: palette(light);
+	border-right-color: palette(light);
 }
 
 ads--CDockWidgetTab[activeTab="true"][darkTheme="false"]{
@@ -96,6 +100,7 @@ ads--CDockWidgetTab[activeTab="true"][darkTheme="true"]{
 ads--CDockWidgetTab[focused="false"][activeTab="false"]:hover,
 ads--CDockWidgetTab[focused="false"][activeTab="true"]:hover{
 	background: @hoverColor@;
+	border-top-color: @hoverColor@;
 }
 
 ads--CDockWidgetTab QLabel {
@@ -110,33 +115,30 @@ ads--CDockWidgetTab[modified="true"] QLabel {
 	color: @modifiedTabColor@;
 }
 
-#tabCloseButton,
-#tabAutoHideButton {
-	margin-top: 2px;
+ads--CDockWidgetTab > #tabCloseButton,
+ads--CDockWidgetTab > #tabAutoHideButton {
 	background: none;
 	border: 1px solid rgba(0, 0, 0, 0%);
-	padding: 0px -2px;
 }
 
-#tabCloseButton{
-	qproperty-icon: url(:/ads/@imgPath@/close-button.svg),
-		url(:/ads/@imgPath@/close-button-disabled.svg) disabled;
+ads--CDockWidgetTab > #tabCloseButton {
+	qproperty-icon: url(:/ads/@imgPath@/close-button.svg), url(:/ads/@imgPath@/close-button-disabled.svg) disabled;
 	qproperty-iconSize: 16px;
 }
 
-#tabAutoHideButton{
+ads--CDockWidgetTab > #tabAutoHideButton {
 	qproperty-icon: url(:/ads/@imgPath@/vs-pin-button.svg);
 	qproperty-iconSize: 16px;
 }
 
-#tabCloseButton:hover, 
-#tabAutoHideButton:hover {
+ads--CDockWidgetTab > #tabCloseButton:hover,
+ads--CDockWidgetTab > #tabAutoHideButton:hover {
 	border-color: rgba(0, 0, 0, 32%);
 	background: rgba(0, 0, 0, 16%);
 }
 
-#tabCloseButton:pressed,
-#tabAutoHideButton:pressed {
+ads--CDockWidgetTab > #tabCloseButton:pressed,
+ads--CDockWidgetTab > #tabAutoHideButton:pressed {
 	background: rgba(0, 0, 0, 32%);
 }
 
@@ -146,17 +148,12 @@ ads--CDockWidgetTab[focused="true"][activeTab="true"] {
 	border-color: @accentColor@;
 }
 
-ads--CDockWidgetTab[focused="true"][activeTab="false"] {
-	border-top: 2px solid;
-	border-color: @accentColor@;
-}
-
-ads--CDockWidgetTab[focused="false"][activeTab="true"][darkTheme="true"]{
-	border-top: 2px solid palette(light);
+ads--CDockWidgetTab[focused="false"][activeTab="true"][darkTheme="true"] {
+	border-top-color: palette(light);
 }
 
 ads--CDockWidgetTab[focused="false"][activeTab="true"][darkTheme="false"]{
-	border-top: 2px solid palette(dark);
+	border-top-color: palette(dark);
 }
 
 ads--CDockWidgetTab[focused="true"][activeTab="true"] > #tabCloseButton {

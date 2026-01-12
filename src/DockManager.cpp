@@ -66,7 +66,6 @@
 	#include "tool/appinfo.h"
 	#ifdef _DEBUG
 		#include "tool/file.h"
-		#include <QFileInfo>
 	#endif
 #endif
 
@@ -1694,9 +1693,9 @@ void CDockManager::loadCustomStylesheet(QHash<QString, QString> tagColorDict)
 	FileName += CDockManager::testConfigFlag(CDockManager::FocusHighlighting)
 		? "focus_highlighting" : "default";
 #ifdef Q_OS_LINUX
-    FileName += "_linux";
+	FileName += "_linux";
 #endif
-    FileName += ".css";
+	FileName += ".css";
 	QFile StyleSheetFile(FileName);
 	StyleSheetFile.open(QIODevice::ReadOnly);
 	QTextStream StyleSheetStream(&StyleSheetFile);

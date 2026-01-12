@@ -4,6 +4,11 @@ if (POLICY CMP0091)
   cmake_policy(SET CMP0091 NEW)
 endif (POLICY CMP0091)
 
+find_package(Git QUIET)
+if (NOT Git_FOUND)
+	set(GIT_EXECUTABLE "C:/Program Files/SmartGit/git/bin/git.exe")
+endif()
+
 # By default, the version information is extracted from the git index. However,
 # we can override this behavior by explicitly setting ADS_VERSION and
 # skipping the git checks. This is useful for cases where this project is being
@@ -25,7 +30,6 @@ else()
         message(FATAL_ERROR "ADS_VERSION must be in major.minor.patch format, e.g. 3.8.1. Got ${ADS_VERSION}")
     endif()
 endif()
-
 
 project(QtADS LANGUAGES CXX VERSION ${VERSION_SHORT})
 
