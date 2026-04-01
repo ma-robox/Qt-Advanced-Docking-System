@@ -400,6 +400,11 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 		setFocusPolicy(Qt::ClickFocus);
 #endif
 	}
+
+	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
+	{
+		winId();
+	}
 }
 
 
@@ -885,7 +890,7 @@ bool CDockWidget::event(QEvent *e)
 			}
 			if (d->DockArea)
 			{
-				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
+				d->DockArea->updateWindowTitle();
 			}
 
 			auto FloatingWidget = floatingDockContainer();

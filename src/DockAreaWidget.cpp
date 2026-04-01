@@ -460,6 +460,12 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 
 	d->createTitleBar();
 	d->ContentsLayout = new DockAreaLayout(d->Layout);
+
+	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
+	{
+		winId();
+	}
+
 	if (d->DockManager)
 	{
 		Q_EMIT d->DockManager->dockAreaCreated(this);
@@ -956,6 +962,19 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		d->TitleBar->showAutoHideControls(IsAutoHide);
 		updateTitleBarButtonVisibility(Container->topLevelDockArea() == this);
 	}
+}
+
+
+//============================================================================
+void CDockAreaWidget::updateWindowTitle()
+{
+	auto currentWidget = d->ContentsLayout->currentWidget();
+	if (d->TitleBar && currentWidget)
+	{
+		d->TitleBar->autoHideTitleLabel()->setText(currentWidget->windowTitle());
+	}
+
+	markTitleBarMenuOutdated();
 }
 
 
@@ -1523,14 +1542,18 @@ QSize CDockAreaWidget::minimumSizeHint() const
 		return Super::minimumSizeHint();
 	}
 
+	int extraHeight = 0;
 	if (d->TitleBar->isVisible())
 	{
-		return d->MinSizeHint + QSize(0, d->TitleBar->minimumSizeHint().height());
+		extraHeight += d->TitleBar->minimumSizeHint().height();
 	}
-	else
+
+	if (CDockManager::testConfigFlag(CDockManager::TabsAtBottom) && d->tabBar()->isVisible())
 	{
-		return d->MinSizeHint;
+		extraHeight += d->tabBar()->minimumSizeHint().height();
 	}
+
+	return d->MinSizeHint + QSize(0, extraHeight);
 }
 
 
