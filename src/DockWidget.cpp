@@ -376,17 +376,30 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 	: QFrame(parent),
 	  d(new DockWidgetPrivate(this))
 {
+#ifdef ADS_ROBOX_CHANGES
+	const QString safeTitle = title.isNull() ? QString() : title;
+#endif
+
 	d->DockManager = manager;
 	d->Layout = new QBoxLayout(QBoxLayout::TopToBottom);
 	d->Layout->setContentsMargins(0, 0, 0, 0);
 	d->Layout->setSpacing(0);
 	setLayout(d->Layout);
+#ifdef ADS_ROBOX_CHANGES
+	setWindowTitle(safeTitle);
+	setObjectName(safeTitle);
+#else
 	setWindowTitle(title);
 	setObjectName(title);
+#endif
 
 	d->TabWidget = d->componentsFactory()->createDockWidgetTab(this);
 
+#ifdef ADS_ROBOX_CHANGES
+	d->ToggleViewAction = new QAction(safeTitle, this);
+#else
 	d->ToggleViewAction = new QAction(title, this);
+#endif
 	d->ToggleViewAction->setCheckable(true);
 	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,
 		SLOT(toggleView(bool)));
