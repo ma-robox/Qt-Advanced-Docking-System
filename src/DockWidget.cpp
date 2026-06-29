@@ -426,9 +426,6 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 CDockWidget::~CDockWidget()
 {
     ADS_PRINT("~CDockWidget(): " << this->windowTitle());
-#ifdef ADS_ROBOX_CHANGES
-	this->disconnect();
-#endif
 	delete d;
 }
 

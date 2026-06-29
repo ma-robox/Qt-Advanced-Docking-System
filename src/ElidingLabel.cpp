@@ -164,7 +164,7 @@ void CElidingLabel::resizeEvent(QResizeEvent *event)
 //============================================================================
 QSize CElidingLabel::minimumSizeHint() const
 {
-#if defined(ADS_ROBOX_CHANGES) && (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+#if defined(ADS_ROBOX_CHANGES) && (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
 	bool HasPixmap = !pixmap().isNull();
 #else
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
@@ -194,7 +194,7 @@ QSize CElidingLabel::minimumSizeHint() const
 //============================================================================
 QSize CElidingLabel::sizeHint() const
 {
-#if defined(ADS_ROBOX_CHANGES) && (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+#if defined(ADS_ROBOX_CHANGES) && (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
 	bool HasPixmap = !pixmap().isNull();
 #else
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
