@@ -348,6 +348,16 @@ void CDockFocusController::onFocusedDockAreaViewToggled(bool Open)
 	{
 		return;
 	}
+#ifdef ADS_ROBOX_CHANGES
+	CDockWidget *DockWidget = d->DockManager->nextOpenedDockWidget(d->FocusedDockWidget,
+		CDockManager::NavOptions::navCycleApp, CDockWidget::DockWidgetFocusable);
+	if (DockWidget)
+	{
+		DockWidget->raise();
+		d->updateDockWidgetFocus(DockWidget);
+		CDockManager::setWidgetFocus(DockWidget);
+	}
+#else
 	auto Container = DockArea->dockContainer();
 	auto OpenedDockAreas = Container->openedDockAreas();
 	if (OpenedDockAreas.isEmpty())
@@ -356,6 +366,7 @@ void CDockFocusController::onFocusedDockAreaViewToggled(bool Open)
 	}
 
 	d->updateDockWidgetFocus(OpenedDockAreas[0]->currentDockWidget());
+#endif
 }
 
 

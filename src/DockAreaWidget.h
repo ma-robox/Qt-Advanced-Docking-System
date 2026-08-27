@@ -460,10 +460,12 @@ Q_SIGNALS:
 #ifdef ADS_ROBOX_CHANGES
 public:
 	/*! Helper selezione widget successivo */
-	CDockWidget* nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false);
+	CDockWidget* nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false,
+		CDockWidget::DockWidgetFeatures requiredFeatures = CDockWidget::NoDockWidgetFeatures);
 
 	/*! Helper selezione widget precedente */
-	CDockWidget* previousOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false);
+	CDockWidget* previousOpenedWidget(CDockWidget* DockWidget, bool cycleThrough = false,
+		CDockWidget::DockWidgetFeatures requiredFeatures = CDockWidget::NoDockWidgetFeatures);
 
 	/*! Reload UI for theme change */
 	void initUi();

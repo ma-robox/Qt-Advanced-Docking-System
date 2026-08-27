@@ -1701,7 +1701,7 @@ void CDockManager::unfocusableWidgetGotFocus()
 	//		 we move to the next
 	CDockWidget *fdw = centralWidget();
 	if (fdw && !fdw->features().testFlag(CDockWidget::DockWidgetFocusable))
-		fdw = nextOpenedDockWidget(fdw, NavOptions::navCycleApp);
+		fdw = nextOpenedDockWidget(fdw, NavOptions::navCycleApp, CDockWidget::DockWidgetFocusable);
 	if (!fdw)
 		return;
 	fdw->setFocus();
@@ -1762,7 +1762,9 @@ CDockContainerWidget *CDockManager::nextOpenedDockContainer(CDockContainerWidget
 	int ix = list.indexOf(start);
 
 	// Verifica se elemento presente nella lista
-	if (ix == -1 || list.size() == 1)
+	if (ix == -1)
+		return (cycle && !list.isEmpty()) ? list.first() : Q_NULLPTR;
+	if (list.size() == 1)
 		return Q_NULLPTR;
 
 	// Cerca elemento successivo nell'ordine
@@ -1784,7 +1786,9 @@ CDockContainerWidget *CDockManager::previousOpenedDockContainer(CDockContainerWi
 	int ix = list.indexOf(start);
 
 	// Verifica se elemento presente nella lista
-	if (ix == -1 || list.size() == 1)
+	if (ix == -1)
+		return (cycle && !list.isEmpty()) ? list.last() : Q_NULLPTR;
+	if (list.size() == 1)
 		return Q_NULLPTR;
 
 	// Cerca elemento precedente nell'ordine
@@ -1844,7 +1848,8 @@ QList<CDockContainerWidget *> CDockManager::openedDockContainers() const
 }
 
 //===========================================================================
-ads::CDockWidget *CDockManager::nextOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option)
+ads::CDockWidget *CDockManager::nextOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option,
+	CDockWidget::DockWidgetFeatures requiredFeatures)
 {
 	ads::CDockWidget *widget = Q_NULLPTR;
 	if (!currentWidget)
@@ -1852,83 +1857,169 @@ ads::CDockWidget *CDockManager::nextOpenedDockWidget(ads::CDockWidget *currentWi
 	ads::CDockAreaWidget *currentArea = currentWidget->dockAreaWidget();
 	if (!currentArea)
 		return widget;
+	bool filterFeatures = (requiredFeatures != CDockWidget::NoDockWidgetFeatures);
+	auto matches = [currentWidget, requiredFeatures, filterFeatures](CDockWidget *DockWidget) -> bool
+	{
+		if (!DockWidget || DockWidget->isClosed() || DockWidget == currentWidget)
+			return false;
+		if (!filterFeatures)
+			return true;
+		return (DockWidget->features() & requiredFeatures) == requiredFeatures;
+	};
 
 	// Cerca nella sua area
-	 widget = currentArea->nextOpenedWidget(currentWidget, (option == NavOptions::navCycleArea));
+	widget = currentArea->nextOpenedWidget(currentWidget, (option == NavOptions::navCycleArea), requiredFeatures);
 	if (widget)
 		return widget;
 
 	// Se nessun widget, passo alla prossima area
-	ads::CDockAreaWidget *area = nextOpenedDockArea(currentArea, (option == NavOptions::navCycleContainer));
-	if (area && (area->openedDockWidgets().size() > 0))
 	{
-		widget = area->openedDockWidgets().first();
-		if (widget)
-			return widget;
+		ads::CDockAreaWidget *area = nextOpenedDockArea(currentArea, (option == NavOptions::navCycleContainer));
+		if (area)
+		{
+			auto widgets = area->openedDockWidgets();
+			for (auto _widget : widgets)
+			{
+				if (matches(_widget))
+					return _widget;
+			}
+		}
 	}
 
 	// Se nessun widget, passo al prossimo contenitore
-	ads::CDockContainerWidget *container = nextOpenedDockContainer(currentArea->dockContainer(), (option == NavOptions::navCycleApp));
-	if (container && (container->openedDockAreas().size() > 0))
 	{
-		area = container->openedDockAreas().first();
-		if (area && (area->openedDockWidgets().size() > 0))
-			widget = area->openedDockWidgets().first();
-		if (widget)
-			return widget;
+		ads::CDockContainerWidget *container = nextOpenedDockContainer(currentArea->dockContainer(), (option == NavOptions::navCycleApp));
+		if (container)
+		{
+			auto areas = container->openedDockAreas();
+			for (auto area : areas)
+			{
+				if (!area)
+					continue;
+
+				auto widgets = area->openedDockWidgets();
+				for (auto _widget : widgets)
+				{
+					if (matches(_widget))
+						return _widget;
+				}
+			}
+		}
 	}
 
 	// Se nessun altro contenitore riapre il primo widget
 	auto containers = openedDockContainers();
-	if (containers.size() > 0)
+	for (auto container : containers)
 	{
-		auto areas = containers.first()->openedDockAreas();
-		if ((areas.size() > 0) && (areas.first()->openedDockWidgets().size() > 0))
-			widget = areas.first()->openedDockWidgets().first();
+		if (!container)
+			continue;
+
+		auto areas = container->openedDockAreas();
+		for (auto area : areas)
+		{
+			if (!area)
+				continue;
+
+			auto widgets = area->openedDockWidgets();
+			for (auto _widget : widgets)
+			{
+				if (matches(_widget))
+					return _widget;
+			}
+		}
 	}
 
 	return widget;
 }
 
 //===========================================================================
-ads::CDockWidget *CDockManager::previousOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option)
+ads::CDockWidget *CDockManager::previousOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option,
+	CDockWidget::DockWidgetFeatures requiredFeatures)
 {
+	ads::CDockWidget *widget = Q_NULLPTR;
+	if (!currentWidget)
+		return widget;
 	ads::CDockAreaWidget *currentArea = currentWidget->dockAreaWidget();
-	Q_ASSERT(currentArea);
+	if (!currentArea)
+		return widget;
+	bool filterFeatures = (requiredFeatures != CDockWidget::NoDockWidgetFeatures);
+	auto matches = [currentWidget, requiredFeatures, filterFeatures](CDockWidget *DockWidget) -> bool
+	{
+		if (!DockWidget || DockWidget->isClosed() || DockWidget == currentWidget)
+			return false;
+		if (!filterFeatures)
+			return true;
+		return (DockWidget->features() & requiredFeatures) == requiredFeatures;
+	};
 
 	// Cerca nella sua area
-	ads::CDockWidget *widget = currentArea->previousOpenedWidget(currentWidget, (option == NavOptions::navCycleArea));
+	widget = currentArea->previousOpenedWidget(currentWidget, (option == NavOptions::navCycleArea), requiredFeatures);
 	if (widget)
 		return widget;
 
 	// Se nessun widget, passo alla prossima area
-	ads::CDockAreaWidget *area = previousOpenedDockArea(currentArea, (option == NavOptions::navCycleContainer));
-	if (area && (area->openedDockWidgets().size() > 0))
 	{
-		widget = area->openedDockWidgets().last();
-		if (widget)
-			return widget;
+		ads::CDockAreaWidget *area = previousOpenedDockArea(currentArea, (option == NavOptions::navCycleContainer));
+		if (area)
+		{
+			auto widgets = area->openedDockWidgets();
+			for (int i = widgets.size() - 1; i >= 0; i--)
+			{
+				ads::CDockWidget *_widget = widgets.at(i);
+				if (matches(_widget))
+					return _widget;
+			}
+		}
 	}
 
 	// Se nessun widget, passo al prossimo contenitore
-	ads::CDockContainerWidget *container = previousOpenedDockContainer(currentArea->dockContainer(), (option == NavOptions::navCycleApp));
-	if (container && (container->openedDockAreas().size() > 0))
 	{
-		area = container->openedDockAreas().last();
-		if (area && (area->openedDockWidgets().size() > 0))
-			widget = area->openedDockWidgets().last();
-		if (widget)
-			return widget;
+		ads::CDockContainerWidget *container = previousOpenedDockContainer(currentArea->dockContainer(), (option == NavOptions::navCycleApp));
+		if (container)
+		{
+			auto areas = container->openedDockAreas();
+			for (int i = areas.size() - 1; i >= 0; i--)
+			{
+				ads::CDockAreaWidget *area = areas.at(i);
+				if (!area)
+					continue;
+
+				auto widgets = area->openedDockWidgets();
+				for (int j = widgets.size() - 1; j >= 0; j--)
+				{
+					ads::CDockWidget *_widget = widgets.at(j);
+					if (matches(_widget))
+						return _widget;
+				}
+			}
+		}
 	}
 
 	// Se nessun altro contenitore riapre l'ultimo widget
 	auto containers = openedDockContainers();
-	if (containers.size() > 0)
+	for (int i = containers.size() - 1; i >= 0; i--)
 	{
-		auto areas = containers.last()->openedDockAreas();
-		if ((areas.size() > 0) && (areas.last()->openedDockWidgets().size() > 0))
-			widget = areas.last()->openedDockWidgets().last();
+		ads::CDockContainerWidget *container = containers.at(i);
+		if (!container)
+			continue;
+
+		auto areas = container->openedDockAreas();
+		for (int j = areas.size() - 1; j >= 0; j--)
+		{
+			ads::CDockAreaWidget *area = areas.at(j);
+			if (!area)
+				continue;
+
+			auto widgets = area->openedDockWidgets();
+			for (int k = widgets.size() - 1; k >= 0; k--)
+			{
+				ads::CDockWidget *_widget = widgets.at(k);
+				if (matches(_widget))
+					return _widget;
+			}
+		}
 	}
+
 	return widget;
 }
 } // namespace ads

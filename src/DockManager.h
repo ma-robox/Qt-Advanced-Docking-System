@@ -910,7 +910,7 @@ Q_SIGNALS:
     void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
 
 #ifdef ADS_ROBOX_CHANGES
-protected:
+public:
 	/*! Impostazioni navigazione da tastiera
 		* Aggiunte perché possa essere reso configurabile in futuro.
 		*/
@@ -975,10 +975,12 @@ public:
 	QString titleExtra() { return m_titleExtra; }
 
 	/*! Helper ricerca prossimo widget */
-	ads::CDockWidget *nextOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option);
+	ads::CDockWidget *nextOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option,
+		CDockWidget::DockWidgetFeatures requiredFeatures = CDockWidget::NoDockWidgetFeatures);
 
 	/*! Helper ricerca widget precedente */
-	ads::CDockWidget *previousOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option);
+	ads::CDockWidget *previousOpenedDockWidget(ads::CDockWidget *currentWidget, NavOptions option,
+		CDockWidget::DockWidgetFeatures requiredFeatures = CDockWidget::NoDockWidgetFeatures);
 
 protected:
 	/*! Testo extra per titoli finestre */

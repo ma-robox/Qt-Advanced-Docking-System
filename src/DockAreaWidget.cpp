@@ -1608,47 +1608,110 @@ bool CDockAreaWidget::event(QEvent *e)
 
 #ifdef ADS_ROBOX_CHANGES
 //============================================================================
-CDockWidget* CDockAreaWidget::nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough)
+CDockWidget* CDockAreaWidget::nextOpenedWidget(CDockWidget* DockWidget, bool cycleThrough,
+	CDockWidget::DockWidgetFeatures requiredFeatures)
 {
 	CDockWidget *widget = Q_NULLPTR;
 	auto openDockWidgets = openedDockWidgets();
 	int currentIndex = openDockWidgets.indexOf(DockWidget);
+	bool filterFeatures = (requiredFeatures != CDockWidget::NoDockWidgetFeatures);
+	auto matches = [requiredFeatures, filterFeatures](CDockWidget *DockWidget) -> bool
+	{
+		if (!DockWidget)
+			return false;
+		if (!filterFeatures)
+			return true;
+		if (DockWidget->isClosed())
+			return false;
+		return (DockWidget->features() & requiredFeatures) == requiredFeatures;
+	};
 
 	// Esistono altri widget
 	if ((openDockWidgets.size() == 1) || (currentIndex == -1))
-		return Q_NULLPTR;
+		return widget;	// nullptr
 	
-	int lastIndex = (openDockWidgets.size() - 1);
-	if (currentIndex < lastIndex)
-		widget = openDockWidgets.at(currentIndex + 1);
-	else if (cycleThrough && currentIndex != 0)
-		widget = openDockWidgets.at(0);
-	
+	// Itero coi filtri
+	for (int ix = currentIndex + 1; ix < openDockWidgets.size(); ix++)
+	{
+		CDockWidget *_widget = openDockWidgets.at(ix);
+		if (matches(_widget))
+		{
+			widget = _widget;
+			break;	// for
+		}
+	}
+
+	// Se raggiunta la fine senza match riparto seguendo cycleThrough
+	if (!widget && cycleThrough && currentIndex != 0)
+	{
+		for (int ix = 0; ix < currentIndex; ix++)
+		{
+			CDockWidget *_widget = openDockWidgets.at(ix);
+			if (matches(_widget))
+			{
+				widget = _widget;
+				break;	// for
+			}
+		}
+	}
+
 	if (m_CentralDockWidget && m_CentralDockWidget == widget)
-		widget = nextOpenedWidget(m_CentralDockWidget, cycleThrough);
+		widget = nextOpenedWidget(m_CentralDockWidget, cycleThrough, requiredFeatures);
 
 	return widget;
 }
 
 //============================================================================
-CDockWidget* CDockAreaWidget::previousOpenedWidget(CDockWidget* DockWidget, bool cycleThrough)
+CDockWidget* CDockAreaWidget::previousOpenedWidget(CDockWidget* DockWidget, bool cycleThrough,
+	CDockWidget::DockWidgetFeatures requiredFeatures)
 {
 	CDockWidget *widget = Q_NULLPTR;
 	auto openDockWidgets = openedDockWidgets();
 	int currentIndex = openDockWidgets.indexOf(DockWidget);
+	bool filterFeatures = (requiredFeatures != CDockWidget::NoDockWidgetFeatures);
+	auto matches = [requiredFeatures, filterFeatures](CDockWidget *DockWidget) -> bool
+	{
+		if (!DockWidget)
+			return false;
+		if (!filterFeatures)
+			return true;
+		if (DockWidget->isClosed())
+			return false;
+		return (DockWidget->features() & requiredFeatures) == requiredFeatures;
+	};
 
 	// Esistono altri widget
 	if ((openDockWidgets.size() == 1) || (currentIndex == -1))
-		return Q_NULLPTR;
+		return widget; // nullptr
 	
+	// Itero coi filtri
 	int lastIndex = (openDockWidgets.size() - 1);
-	if (currentIndex > 0)
-		widget = openDockWidgets.at(currentIndex - 1);
-	else if (cycleThrough && (currentIndex != lastIndex))
-		widget = openDockWidgets.at(lastIndex);
-	
+	for (int ix = currentIndex - 1; ix >= 0; ix--)
+	{
+		CDockWidget *_widget = openDockWidgets.at(ix);
+		if (matches(_widget))
+		{
+			widget = _widget;
+			break;	// for
+		}
+	}
+
+	// Se raggiunta l'inizio senza match riparto seguendo cycleThrough
+	if (!widget && cycleThrough && currentIndex != lastIndex)
+	{
+		for (int ix = lastIndex; ix > currentIndex; ix--)
+		{
+			CDockWidget *_widget = openDockWidgets.at(ix);
+			if (matches(_widget))
+			{
+				widget = _widget;
+				break;	// for
+			}
+		}
+	}
+
 	if (m_CentralDockWidget && m_CentralDockWidget == widget)
-		widget = previousOpenedWidget(m_CentralDockWidget, cycleThrough);
+		widget = previousOpenedWidget(m_CentralDockWidget, cycleThrough, requiredFeatures);
 
 	return widget;
 }
