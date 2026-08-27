@@ -1152,6 +1152,11 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 #endif	// [ALB]
 		setWindowIcon(QApplication::windowIcon());
 	}
+
+    if (d->DockContainer->dockAreaCount() == 0)
+    {
+        deleteLater();
+    }
 }
 
 //============================================================================

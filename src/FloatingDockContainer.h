@@ -42,7 +42,7 @@
 #endif
 
 class CDockingStateReader;
-class QMimeData;
+QT_FORWARD_DECLARE_CLASS(QMimeData)
 #ifdef ADS_ROBOX_CHANGES
 class QMenuBar;
 #endif

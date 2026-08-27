@@ -129,6 +129,7 @@ struct DockManagerPrivate
 	bool RestoringState = false;
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
+	QString RestoredFocusedDockWidget;
     CDockWidget* CentralWidget = nullptr;
     bool IsLeavingMinimized = false;
 	Qt::ToolButtonStyle ToolBarStyleDocked = Qt::ToolButtonIconOnly;
@@ -343,6 +344,12 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
 			return false;
 		}
     }
+
+	if (!Testing)
+	{
+		// Store the saved focused dock widget name so it can be reapplied after stale focus styling is cleared.
+		RestoredFocusedDockWidget = s.attributes().value("FocusedDockWidget").toString();
+	}
 
     int DockContainerCount = 0;
     while (s.readNextStartElement())
@@ -879,6 +886,10 @@ QByteArray CDockManager::saveState(int version) const
 		{
 			s.writeAttribute("CentralWidget", d->CentralWidget->objectName());
 		}
+		if (auto FocusedDockWidget = focusedDockWidget())
+		{
+			s.writeAttribute("FocusedDockWidget", FocusedDockWidget->objectName());
+		}
 		for (auto Container : d->Containers)
 		{
 			Container->saveState(s);
@@ -924,6 +935,13 @@ bool CDockManager::restoreState(const QByteArray &state, int version)
 		show();
 	}
 	Q_EMIT stateRestored();
+	if (Result && !d->RestoredFocusedDockWidget.isEmpty())
+	{
+		if (auto DockWidget = findDockWidget(d->RestoredFocusedDockWidget))
+		{
+			setDockWidgetFocused(DockWidget);
+		}
+	}
 	return Result;
 }
 
